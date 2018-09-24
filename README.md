@@ -4,7 +4,7 @@
 ## Introduce
 
 ### Architecture
-![Alt text](./1537753173999.png)
+![Alt text](./arch.png)
 
 1. aibuild服务初始化时，创建相关表格，并监听服务，端口9753
 2. 新增一个镜像，编写制作和测试代码，推送到Gitlab
@@ -16,8 +16,9 @@
 Database: aibuild
 
 * Table: build_log
-|field|type|Null|Key|Default|Extra|
-|--|--|--|--|--|--|
+
+| field | type | Null | Key | Default | Extra |
+|------|------|------|------|------|------|
 |image_uuid|varchar(36)|NO|PRI|NULL||
 |image_name|varchar(255)|YES||NULL||
 |os_type|varchar(20)|YES||NULL||
@@ -27,16 +28,18 @@ Database: aibuild
 |update_contents|text|YES||NULL||
 
 * Table: test_log
+
 |field|type|Null|Key|Default|Extra|
-|--|--|--|--|--|--|
+|------|------|------|------|------|------|
 |image_uuid|varchar(36)|NO|PRI|NULL||
 |test_case|varchar(255)|YES||NULL||
 |test_result|varchar(10)|YES||NULL||
 |test_at|datetime|YES||NULL||
 
 * Table: release_log
+
 |field|type|Null|Key|Default|Extra|
-|--|--|--|--|--|--|
+|------|------|------|------|------|------|
 |image_uuid|varchar(36)|NO|PRI|NULL||
 |openstack_cluster|varchar(60)|YES||NULL||
 |glance_id|varchar(36)|YES||NULL||
