@@ -27,14 +27,14 @@ Database: aibuild
 |from_iso|varchar(255)|YES||NULL||
 |update_contents|text|YES||NULL||
 
-* Table: test_log
+* Table: validate_log
 
 |field|type|Null|Key|Default|Extra|
 |------|------|------|------|------|------|
 |image_uuid|varchar(36)|NO|PRI|NULL||
-|test_case|varchar(255)|YES||NULL||
-|test_result|varchar(10)|YES||NULL||
-|test_at|datetime|YES||NULL||
+|validate_case|varchar(255)|YES||NULL||
+|validate_result|varchar(10)|YES||NULL||
+|validate_at|datetime|YES||NULL||
 
 * Table: release_log
 

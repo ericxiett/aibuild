@@ -1,6 +1,6 @@
 # Server Specific Configurations
 server = {
-    'port': '8080',
+    'port': '9753',
     'host': '0.0.0.0'
 }
 
@@ -8,8 +8,6 @@ server = {
 app = {
     'root': 'aibuild.controllers.root.RootController',
     'modules': ['aibuild'],
-    'static_root': '%(confdir)s/public',
-    'template_path': '%(confdir)s/aibuild/templates',
     'debug': True,
     'errors': {
         404: '/error/404',
@@ -30,6 +28,12 @@ logging = {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'color'
+        },
+        'logfile': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '/var/log/aibuild/aibuild.log',
+            'formatter': 'color'
         }
     },
     'formatters': {
@@ -45,10 +49,3 @@ logging = {
         }
     }
 }
-
-# Custom Configurations must be in Python dictionary format::
-#
-# foo = {'bar':'baz'}
-#
-# All configurations are accessible at::
-# pecan.conf

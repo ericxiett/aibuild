@@ -9,11 +9,12 @@ except ImportError:
 setup(
     name='aibuild',
     version='0.1',
-    description='',
-    author='',
-    author_email='',
+    description='Automate to build GuestOS images(AIBuild)',
+    author='Eric Xie',
+    author_email='eric_xiett@163.com',
     install_requires=[
         "pecan",
+        "sqlalchemy"
     ],
     test_suite='aibuild',
     zip_safe=False,

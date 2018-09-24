@@ -1,6 +1,6 @@
 # Server Specific Configurations
 server = {
-    'port': '8080',
+    'port': '9753',
     'host': '0.0.0.0'
 }
 
@@ -8,18 +8,9 @@ server = {
 app = {
     'root': 'aibuild.controllers.root.RootController',
     'modules': ['aibuild'],
-    'static_root': '%(confdir)s/../../public',
-    'template_path': '%(confdir)s/../templates',
     'debug': True,
     'errors': {
         '404': '/error/404',
         '__force_dict__': True
     }
 }
-
-# Custom Configurations must be in Python dictionary format::
-#
-# foo = {'bar':'baz'}
-#
-# All configurations are accessible at::
-# pecan.conf

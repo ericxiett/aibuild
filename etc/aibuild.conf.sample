@@ -1,0 +1,2 @@
+[DEFAULT]
+db_connection = mysql+pymysql://aibuild:aibuild@127.0.0.1/aibuild?charset=utf8
