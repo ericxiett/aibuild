@@ -1,0 +1,36 @@
+---
+
+- name: Install qemu-kvm and unzip
+  apt:
+    name: '{{ item }}'
+    state: latest
+  with_items:
+    - qemu-kvm
+    - unzip
+    - apache2
+
+- name: Download packer
+  get_url:
+    url: https://releases.hashicorp.com/packer/1.2.5/packer_1.2.5_linux_amd64.zip
+    dest: /opt
+
+- name: Unzip packer
+  unarchive:
+    src: /opt/packer_1.2.5_linux_amd64.zip
+    dest: /opt/packer
+    remote_src: yes
+    mode: ug+x
+
+- name: Create web server directories
+  file:
+    path: '{{ item }}'
+    state: directory
+  with_items:
+    - /var/www/html/images/build
+    - /var/www/html/images/release
+
+- name: Start apache2 service
+  service:
+    name: apache2
+    state: restarted
+    enabled: yes

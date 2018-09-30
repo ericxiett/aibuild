@@ -1,0 +1,20 @@
+---
+
+- name: Get start timestamp
+  hosts: deploy
+  connection: local
+  tasks:
+    - set_fact:
+        starttime: '{{ ansible_date_time }}'
+
+- name: Setup aibuild server
+  hosts: aibuild01
+  user: root
+  roles:
+    - server
+
+- name: Setup cid env
+  hosts: aibuild02
+  user: root
+  roles:
+    - cid

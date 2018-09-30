@@ -1,8 +1,11 @@
 from pecan import expose, redirect
 from webob.exc import status_map
 
+from aibuild.controllers import v1
 
 class RootController(object):
+
+    v1 = v1.Controller()
 
     @expose(generic=True, template='index.html')
     def index(self):

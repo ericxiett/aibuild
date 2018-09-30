@@ -1,0 +1,84 @@
+---
+
+- name: Add docker apt key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add docker repository
+  apt_repository:
+    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
+    state: present
+
+- name: Install apt-transport-https
+  apt:
+    name: apt-transport-https
+    state: latest
+
+- name: Install docker-ce
+  apt:
+    update_cache: yes
+    name: docker-ce
+    state: latest
+
+- name: Accelerate pulling of docker images
+  template:
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
+
+- name: Restart docker service
+  service:
+    name: docker
+    state: restarted
+    enabled: yes
+
+- name: Pull images
+  docker_image:
+    name: '{{ item }}'
+  with_items:
+    - jenkins
+    - gitlab/gitlab-ce
+
+- name: Create Jenkins container
+  docker_container:
+    name: aibuild_jenkins
+    image: jenkins
+    volumes:
+      - "/home/jenkins:/var/jenkins_home"
+    exposed_ports:
+      - "49001:8080"
+    tty: yes
+
+- name: Chown jenkins workdir
+  file:
+    path: /home/jenkins
+    owner: jenkins
+    group: jenkins
+    recurse: yes
+
+- name: Start jenkins container
+  docker_container:
+    name: aibuild_jenkins
+
+- name: Create gitlab directories
+  file:
+    name: '{{ item }}'
+    state: directory
+  with_items:
+    - /home/gitlab
+    - /home/gitlab/config
+    - /home/gitlab/data
+    - /home/gitlab/logs
+
+- name: Create Gitlab container
+  docker_container:
+    name: aibuild_gitlab
+    image: gitlab/gitlab-ce
+    hostname: gitlab
+    volumes:
+      - "/home/gitlab/config:/etc/gitlab"
+      - "/home/gitlab/data:/var/opt/gitlab"
+      - "/home/gitlab/logs:/var/log/gitlab"
+    exposed_ports:
+      - "49011:80"
+    restart: yes
