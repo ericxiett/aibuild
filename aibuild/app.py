@@ -1,12 +1,11 @@
-from pecan import make_app
+import os
 
+from pecan.deploy import deploy
 
-def setup_app(config):
+from aibuild.common.config import CONF
 
-    app_conf = dict(config.app)
+CONFIG_PATH = 'pecan_config_path'
 
-    return make_app(
-        app_conf.pop('root'),
-        logging=getattr(config, 'logging', {}),
-        **app_conf
-    )
+# fix pecan configuration name
+config_path = CONF.get('DEFAULT', CONFIG_PATH)
+application = deploy(os.path.abspath(config_path))

@@ -1,37 +1,66 @@
 ---
 
-- name: Install qemu-kvm and unzip
-  apt:
-    name: '{{ item }}'
+- name: Create aibuild database
+  mysql_db:
+    name: aibuild
+    state: present
+    encoding: utf8
+    login_user: root
+    login_password: "{{ ansible_ssh_pass }}"
+
+- name: Grant all privileges for aibuild
+  command: 'mysql -uroot -p{{ ansible_ssh_pass }} -ne "{{ item }}"'
+  with_items:
+    - GRANT ALL PRIVILEGES ON aibuild.* TO 'aibuild'@'localhost' IDENTIFIED BY '{{ ansible_ssh_pass }}'
+    - GRANT ALL PRIVILEGES ON aibuild.* TO 'aibuild'@'%' IDENTIFIED BY '{{ ansible_ssh_pass }}'
+
+- name: Git clone aibuild src
+  git:
+    repo: https://github.com/ericxiett/aibuild.git
+    dest: /opt
+
+- name: Install pkgs
+  yum:
+    name: "{{ item }}"
     state: latest
   with_items:
-    - qemu-kvm
-    - unzip
+    - python-pecan
     - apache2
-    - git
+    - mod_wsgi
 
-- name: Download packer
-  get_url:
-    url: https://releases.hashicorp.com/packer/1.2.5/packer_1.2.5_linux_amd64.zip
-    dest: /opt
+- name: Install aibuild python libs
+  command: python setup.py develop
+  args:
+    chdir: /opt/aibuild/
 
-- name: Unzip packer
-  unarchive:
-    src: /opt/packer_1.2.5_linux_amd64.zip
-    dest: /opt
-    remote_src: yes
-    mode: ug+x
-
-- name: Create web server directories
+- name: Create log dir
   file:
-    path: '{{ item }}'
+    path: "{{ item }}"
     state: directory
   with_items:
-    - /var/www/html/images/build
-    - /var/www/html/images/release
+    - /var/log/aibuild
+    - /etc/aibuild
 
-- name: Start apache2 service
+- name: Copy aibuild.conf
+  template:
+    src: aibuild.conf.j2
+    dest: /etc/aibuild/aibuild.conf
+
+- name: Sync db
+  command: python dbsync.py create
+  args:
+    chdir: /opt/aibuild/aibuild/cmd/
+
+- name: Copy conf for mod_wsgi
+  template:
+    src: apache2_aibuild.conf.j2
+    dest: /etc/apache2/conf-available/aibuild.conf
+
+- name: Create softlink
+  command: ln -s /etc/apache2/conf-available/aibuild.conf /etc/apache2/conf-enabled/aibuild.conf
+
+- name: Start aibuild
   service:
     name: apache2
-    state: restarted
     enabled: yes
+    state: restarted

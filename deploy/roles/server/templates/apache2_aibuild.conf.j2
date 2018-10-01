@@ -1,0 +1,12 @@
+Listen 0.0.0.0:9753
+
+<VirtualHost *>
+    ServerName example.com
+
+    WSGIDaemonProcess simpleapp threads=5 python-path=/var/www/venv/lib/python2.7/site-packages
+    WSGIScriptAlias / /aibuild/app.py
+
+    <Directory /aibuild/>
+        Require all granted
+    </Directory>
+</VirtualHost>
