@@ -17,7 +17,7 @@
 - name: Unzip packer
   unarchive:
     src: /opt/packer_1.2.5_linux_amd64.zip
-    dest: /opt/packer
+    dest: /opt
     remote_src: yes
     mode: ug+x
 

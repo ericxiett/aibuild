@@ -5,15 +5,15 @@
     url: https://download.docker.com/linux/ubuntu/gpg
     state: present
 
-- name: Add docker repository
-  apt_repository:
-    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
-    state: present
-
 - name: Install apt-transport-https
   apt:
     name: apt-transport-https
     state: latest
+
+- name: Add docker repository
+  apt_repository:
+    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
+    state: present
 
 - name: Install docker-ce
   apt:
@@ -31,6 +31,11 @@
     name: docker
     state: restarted
     enabled: yes
+
+- name: Install python-docker
+  apt:
+    name: python-docker
+    state: latest
 
 - name: Pull images
   docker_image:
@@ -52,8 +57,8 @@
 - name: Chown jenkins workdir
   file:
     path: /home/jenkins
-    owner: jenkins
-    group: jenkins
+    owner: 1000
+    group: 1000
     recurse: yes
 
 - name: Start jenkins container
