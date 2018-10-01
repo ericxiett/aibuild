@@ -68,7 +68,7 @@ vi /etc/docker/daemon.json
   "registry-mirrors": ["https://registry.docker-cn.com"]
 }
 systemctl restart docker.service
-docker pull jenkins
+docker pull jenkins/jenkins:lts
 cd /home
 docker run -d -p 49001:8080 -v $PWD/jenkins:/var/jenkins_home -t jenkins
 chown -R 1000 $(pwd)/jenkins/
@@ -117,3 +117,18 @@ packer  packer_1.2.5_linux_amd64.zip
 	* build: 构建成功后推送的地方，/var/www/html/images/build
 	* release: 测试通过后推送的地方，/var/www/html/images/release
 
+## Use
+
+* Create one project of gitlab
+
+    http://172.23.61.5:49011/root/ubuntu1604-tpl
+
+* 配置webhook
+
+    1）jenkins “系统管理”->”插件管理”->”可选插件”，选择Gitlab Hook Plugin和Gitlab Plugin
+
+    2）配置从节点
+
+    3）打开要自动构建的jenkins项目，找到构建触发器，勾选Build when a change is pushed to GitLab. GitLab CI Service，并记录下后面的url地址。
+
+    4）进入gitlab项目管理界面，选择webhook，在url中输入刚才在jenkins配置界面复制那一个url，点击ADD WEB HOOK，之后再点击TEST HOOK，如果看到jenkins中有自动出现一个构建事件，即是配置成功了。

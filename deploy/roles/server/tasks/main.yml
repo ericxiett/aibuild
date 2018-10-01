@@ -8,6 +8,7 @@
     - qemu-kvm
     - unzip
     - apache2
+    - git
 
 - name: Download packer
   get_url:
