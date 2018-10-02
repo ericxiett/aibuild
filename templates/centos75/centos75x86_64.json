@@ -6,7 +6,7 @@
     {
       "vm_name": "{{ user `vmname` }}",
       "type": "qemu",
-      "iso_url": "{{ user `isourl` }",
+      "iso_url": "{{ user `isourl` }}",
       "iso_checksum": "714acc0aefb32b7d51b515e25546835e55a90da9fb00417fbee2d03a62801efd",
       "iso_checksum_type": "sha256",
       "output_directory": "{{ user `outdir` }}",
