@@ -3,7 +3,7 @@
   [
     {
       "type": "qemu",
-      "iso_url": "{{ isourl }}",
+      "iso_url": "{{ user `isourl` }}",
       "iso_checksum_type": "md5",
       "iso_checksum": "24636fd103a2a43c95659f1c3c63718e",
       "output_directory": "{{ user `outdir` }}",

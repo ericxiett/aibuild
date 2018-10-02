@@ -14,12 +14,35 @@ CHANGE=$CHANGE_TITLE
 
 echo "Change: "$CHANGE
 echo "Build: "$BUILD_TAG
+echo "GIT_COMMIT: "$GIT_COMMIT
+echo "CHANGE_ID: "$CHANGE_ID
 
 echo "Workspace: "$WORKSPACE
 cd $WORKSPACE
 $PACKER_EXEC build -var "outdir=$OUTDIR" -var "vmname=$IMGNAME" -var "isourl=$ISOURL" ubuntu1604.json
 
+generate_post_data()
+{
+    cat <<EOF
+{
+    "image_name":"$IMGNAME",
+    "os_type":"Linux",
+    "os_distro":"ubuntu",
+    "os_ver":"16.04",
+    "from_iso":"$ISOURL",
+    "update_contents":"$GIT_COMMIT"
+}
+EOF
+}
+
+# Need add dns mapping for aibuild-server.com and hostip
 curl --header "Content-Type: application/json" \
   --request POST \
-  --data '{"image_name":"$IMGNAME","os_type":"Linux","os_distro":"ubuntu","os_ver":"16.04","from_iso":"$ISOURL","update_contents":"$CHANGE"}' \
-  http://172.23.61.4:9753/v1/build
+  --data "$(generate_post_data)" \
+  http://aibuild-server.com:9753/v1/build
+
+# Move image to build dir
+mv $OUTDIR/$IMGNAME /var/www/html/images/build/
+
+# Clean
+rm -rf $OUTDIR
