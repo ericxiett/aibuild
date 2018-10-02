@@ -35,14 +35,19 @@ generate_post_data()
 EOF
 }
 
-# Need add dns mapping for aibuild-server.com and hostip
-curl --header "Content-Type: application/json" \
-  --request POST \
-  --data "$(generate_post_data)" \
-  http://aibuild-server.com:9753/v1/build
+if [[ -e "$OUTDIR/$IMGNAME" ]]; then
+    # Need add dns mapping for aibuild-server.com and hostip
+    curl --header "Content-Type: application/json" \
+      --request POST \
+      --data "$(generate_post_data)" \
+      http://aibuild-server.com:9753/v1/build
 
-# Move image to build dir
-mv $OUTDIR/$IMGNAME /var/www/html/images/build/
+    # Move image to build dir
+    mv $OUTDIR/$IMGNAME /var/www/html/images/build/
+else
+    echo "Image not generated successfully"
+    exit 1
+fi
 
 # Clean
 rm -rf $OUTDIR
