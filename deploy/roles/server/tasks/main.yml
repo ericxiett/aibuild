@@ -17,16 +17,16 @@
 - name: Git clone aibuild src
   git:
     repo: https://github.com/ericxiett/aibuild.git
-    dest: /opt
+    dest: /opt/aibuild
 
 - name: Install pkgs
-  yum:
+  apt:
     name: "{{ item }}"
     state: latest
   with_items:
     - python-pecan
     - apache2
-    - mod_wsgi
+    - libapache2-mod-wsgi
 
 - name: Install aibuild python libs
   command: python setup.py develop

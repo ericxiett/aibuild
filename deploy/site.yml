@@ -35,7 +35,7 @@
   hosts: deploy
   connection: local
   tasks:
-    debug:
-      msg: >-
-        The workload started at {{ hostvars.deploy.starttime.time }}
-        ended at {{ ansible_date_time.time }}
+    - debug:
+        msg: >-
+          The workload started at {{ hostvars.deploy.starttime.time }}
+          ended at {{ ansible_date_time.time }}
