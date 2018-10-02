@@ -1,4 +1,6 @@
 {
+  "description":"Ubuntu1604 x86_64 minimal for Packer",
+  "min_packer_version":"1.0.0",
   "builders":
   [
     {

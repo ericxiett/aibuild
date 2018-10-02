@@ -19,7 +19,7 @@ echo "CHANGE_ID: "$CHANGE_ID
 
 echo "Workspace: "$WORKSPACE
 cd $WORKSPACE
-$PACKER_EXEC build -var "outdir=$OUTDIR" -var "vmname=$IMGNAME" -var "isourl=$ISOURL" ubuntu1604.json
+$PACKER_EXEC build -var "outdir=$OUTDIR" -var "vmname=$IMGNAME" -var "isourl=$ISOURL" ubuntu1604x86_64.json
 
 generate_post_data()
 {
