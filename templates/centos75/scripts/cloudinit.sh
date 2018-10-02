@@ -4,8 +4,8 @@ set -e
 set -x
 
 # Install
-apt update
-apt install -y cloud-init
+yum install -y epel-release
+yum install -y cloud-init
 
 # Config
 cd /etc/cloud

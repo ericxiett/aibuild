@@ -12,4 +12,4 @@ sudo tee -a $SSHDCONF <<EOF
 UseDNS no
 EOF
 
-systemctl restart ssh
+systemctl restart sshd
