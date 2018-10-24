@@ -1,0 +1,30 @@
+{
+    "builders": [
+      {
+        "vm_name": "{{user `vmname`}}",
+        "output_directory": "{{ user `outdir` }}",
+        "type": "qemu",
+        "accelerator": "kvm",
+        "qemuargs": [
+          ["-m", "4096M"]
+        ],
+        "headless": true,
+        "boot_wait": "2m",
+        "format": "qcow2",
+        "disk_size": "40960",
+        "disk_interface": "virtio",
+        "iso_url": "{{user `isourl`}}",
+        "iso_checksum": "45f5933c474bfb9da28b7fef0bdf96c6",
+        "iso_checksum_type": "md5",
+        "vnc_bind_address": "0.0.0.0",
+        "shutdown_command": "a:\\sysprep.bat",
+        "shutdown_timeout": "2h",
+        "communicator": "winrm",
+        "winrm_username": "administrator",
+        "winrm_password": "Lc13yfwpW",
+        "winrm_timeout": "1h",
+        "http_directory": ".",
+        "floppy_files": "drivers/viostor/win10/amd64/*,drivers/NetKVM/win10/amd64/*,scripts/*"
+      }
+    ]
+  }

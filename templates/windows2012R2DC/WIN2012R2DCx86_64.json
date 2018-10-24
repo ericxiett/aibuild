@@ -1,30 +1,34 @@
 {
-    "builders": [
-      {
-        "vm_name": "{{user `vmname`}}",
-        "output_directory": "{{ user `outdir` }}",
-        "type": "qemu",
-        "accelerator": "kvm",
-        "qemuargs": [
-          ["-m", "4096M"]
-        ],
-        "headless": true,
-        "boot_wait": "2m",
-        "format": "qcow2",
-        "disk_size": "40960",
-        "disk_interface": "virtio",
-        "iso_url": "{{user `isourl`}}",
-        "iso_checksum": "a69276d600d9621d3b0ab465e5700b6e",
-        "iso_checksum_type": "md5",
-        "vnc_bind_address": "0.0.0.0",
-        "shutdown_command": "a:\\sysprep.bat",
-        "shutdown_timeout": "1h",
-        "communicator": "winrm",
-        "winrm_username": "administrator",
-        "winrm_password": "Lc13yfwpW",
-        "winrm_timeout": "1h",
-        "http_directory": ".",
-        "floppy_files": "drivers/viostor/2k12R2/amd64/*,drivers/NetKVM/2k12R2/amd64/*,scripts/*"
-      }
-    ]
-  }
+  "description":"Windows 2012R2 DataCenter for Packer",
+  "min_packer_version":"1.0.0",
+  "builders":
+  [
+    {
+      "vm_name": "{{ user `vmname` }}",
+      "type": "qemu",
+      "iso_url": "{{ user `isourl` }}",
+      "iso_checksum": "a69276d600d9621d3b0ab465e5700b6e",
+      "iso_checksum_type": "md5",
+      "output_directory": "{{ user `outdir` }}",
+      "shutdown_command": "a:\\sysprep.bat",
+      "shutdown_timeout": "1h",
+      "disk_size": 40000,
+      "format": "qcow2",
+      "qemuargs": [
+        ["-m", "4096"],
+        ["-smp", "2"]
+      ],
+      "headless": true,
+      "boot_wait": "2m",
+      "accelerator": "kvm",
+      "http_directory": ".",
+      "communicator": "winrm",
+      "winrm_username": "administrator",
+      "winrm_password": "Lc13yfwpW",
+      "winrm_timeout": "1h",
+      "vnc_bind_address": "0.0.0.0",
+      "disk_interface": "virtio",
+      "floppy_files": "drivers/viostor/2k12R2/amd64/*,drivers/NetKVM/2k12R2/amd64/*,scripts/*"
+    }
+  ]
+}
