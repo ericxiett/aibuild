@@ -22,6 +22,7 @@ Database: aibuild
 |image_uuid|varchar(36)|NO|PRI|NULL||
 |image_name|varchar(255)|YES||NULL||
 |os_type|varchar(20)|YES||NULL||
+|os_distro|varchar(20)|YES||NULL||
 |os_ver|varchar(10)|YES||NULL||
 |build_at|datetime|YES||NULL||
 |from_iso|varchar(255)|YES||NULL||
@@ -132,3 +133,10 @@ packer  packer_1.2.5_linux_amd64.zip
     3）打开要自动构建的jenkins项目，找到构建触发器，勾选Build when a change is pushed to GitLab. GitLab CI Service，并记录下后面的url地址。
 
     4）进入gitlab项目管理界面，选择webhook，在url中输入刚才在jenkins配置界面复制那一个url，点击ADD WEB HOOK，之后再点击TEST HOOK，如果看到jenkins中有自动出现一个构建事件，即是配置成功了。
+    
+## TODO
+1. deploy Container（jenkins，gitlab）启动有问题，
+    * jenkins start报错
+    * gitlab 暴露端口不对
+
+2. 集成mod_wsgi有问题
