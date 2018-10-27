@@ -1,4 +1,4 @@
-import json
+import datetime
 import uuid
 
 import sqlalchemy
@@ -47,7 +47,8 @@ class API(object):
             os_distro=build_log.get('os_distro'),
             os_ver=build_log.get('os_ver'),
             from_iso=build_log.get('from_iso'),
-            update_contents=build_log.get('update_contents')
+            update_contents=build_log.get('update_contents'),
+            build_at=datetime.datetime.now()
         ))
         session.commit()
         session.close()

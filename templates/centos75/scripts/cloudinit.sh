@@ -5,7 +5,7 @@ set -x
 
 # Install
 yum install -y epel-release
-yum install -y cloud-init
+yum install -y cloud-init cloud-utils-growpart
 
 # Config
 cd /etc/cloud

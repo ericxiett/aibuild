@@ -41,6 +41,7 @@ if [[ -e "$OUTDIR/$IMGNAME" ]]; then
 
     # Move image to build dir
     mv $OUTDIR/$IMGNAME /var/www/html/images/build/
+    virt-sysprep -a /var/www/html/images/build/$IMGNAME
 else
     echo "Image not generated successfully"
     exit 1

@@ -3,9 +3,11 @@
 set -e
 set -x
 
+echo "nameserver 114.114.114.114" >> /etc/resolv.conf
+
 # Install
 yum install -y epel-release
-yum install -y cloud-init
+yum install -y cloud-init cloud-utils-growpart
 
 # Config
 cd /etc/cloud
@@ -71,3 +73,4 @@ cloud_final_modules:
  - phone-home
  - final-message
 EOF
+

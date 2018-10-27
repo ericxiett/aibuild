@@ -11,7 +11,7 @@
       "iso_checksum_type": "md5",
       "output_directory": "{{ user `outdir` }}",
       "shutdown_command": "shutdown -P now",
-      "disk_size": 40000,
+      "disk_size": 40960,
       "format": "qcow2",
       "qemuargs": [
         ["-m", "2048"],

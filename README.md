@@ -101,7 +101,7 @@ gitlab/gitlab-ce
 ### aibuild server
 * 安装qemu，kvm
 ``` bash
-$ apt install qemu-kvm
+$ apt install qemu-kvm git
 ```
 
 * Download packer
@@ -111,6 +111,44 @@ $ apt install -y unzip
 $ unzip packer_1.2.5_linux_amd64.zip
 $ ls
 packer  packer_1.2.5_linux_amd64.zip
+```
+
+* Setup aibuild
+``` bash
+$ apt install mariadb-server python-pymysql python-mysqldb python-pecan
+$ vim /etc/mysql/mariadb.conf.d/aibuild.cnf
+[mysqld]
+bind-address = 0.0.0.0
+
+default-storage-engine = innodb
+innodb_file_per_table
+max_connections = 4096
+open_files_limit = 8192
+collation-server = utf8_general_ci
+character-set-server = utf8
+
+$ systemctl restart mysql
+$ mysql_secure_installation
+$ mysql -uroot -pLc13yfwpW
+CREATE DATABASE aibuild CHARACTER SET utf8;
+GRANT ALL PRIVILEGES ON aibuild.* TO 'aibuild'@'localhost' \
+       IDENTIFIED BY 'Lc13yfwpW';
+CREATE DATABASE aibuild CHARACTER SET utf8;
+GRANT ALL PRIVILEGES ON aibuild.* TO 'aibuild'@'%' \
+       IDENTIFIED BY 'Lc13yfwpW';
+$ cd /opt/
+$ git clone https://github.com/ericxiett/aibuild.git
+$ cd aibuild/
+$ python setup.py develop
+$ mkdir -p /var/log/aibuild
+$ mkdir -p /etc/aibuild
+$ vim /etc/aibuild/aibuild.conf
+[DEFAULT]
+db_connection = mysql+pymysql://aibuild:Lc13yfwpW@127.0.0.1/aibuild?charset=utf8
+pecan_config_path = /opt/aibuild/config.py
+$ cd aibuild/cmd/
+$ python dbsync.py create
+$ nohup pecan serve config.py &
 ```
 
 * web server
