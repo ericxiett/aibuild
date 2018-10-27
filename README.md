@@ -71,7 +71,7 @@ vi /etc/docker/daemon.json
 systemctl restart docker.service
 docker pull jenkins/jenkins:lts
 cd /home
-docker run -d -p 49001:8080 -v $PWD/jenkins:/var/jenkins_home -t jenkins
+docker run -d -p 49001:8080 -v $PWD/jenkins:/var/jenkins_home -t jenkins/jenkins:lts
 chown -R 1000 $(pwd)/jenkins/
 docker start 534dba942d5a
 ```
