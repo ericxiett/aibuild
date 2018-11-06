@@ -1,0 +1,46 @@
+{
+  "description":"CentOS6.5 x86_64 minimal for Packer",
+  "min_packer_version":"1.0.0",
+  "builders":
+  [
+    {
+      "vm_name": "{{ user `vmname` }}",
+      "type": "qemu",
+      "iso_url": "{{ user `isourl` }}",
+      "iso_checksum": "0d9dc37b5dd4befa1c440d2174e88a87",
+      "iso_checksum_type": "md5",
+      "output_directory": "{{ user `outdir` }}",
+      "shutdown_command": "shutdown -P now",
+      "disk_size": 40960,
+      "format": "qcow2",
+      "qemuargs": [
+        ["-m", "2048"],
+        ["-smp", "2"]
+      ],
+      "headless": true,
+      "accelerator": "kvm",
+      "http_directory": "httpdir",
+      "ssh_username": "root",
+      "ssh_password": "Lc13yfwpW",
+      "ssh_port": 22,
+      "ssh_wait_timeout": "20m",
+      "vnc_bind_address": "0.0.0.0",
+      "net_device": "virtio-net",
+      "disk_interface": "virtio",
+      "disk_compression": true,
+      "boot_wait": "10s",
+      "boot_command": [
+        "<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ks.cfg<enter><wait>"
+      ]
+    }
+  ],
+  "provisioners": [
+    {
+      "scripts": [
+        "scripts/update_pkgs.sh",
+        "scripts/cloudinit.sh"
+      ],
+      "type": "shell"
+    }
+  ]
+}
