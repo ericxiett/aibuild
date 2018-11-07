@@ -37,7 +37,6 @@
   "provisioners": [
     {
       "scripts": [
-        "scripts/update_pkgs.sh",
         "scripts/cloudinit.sh"
       ],
       "type": "shell"

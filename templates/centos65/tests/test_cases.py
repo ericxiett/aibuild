@@ -28,7 +28,6 @@ def get_addr(dom_name):
     conn = libvirt.open('qemu:///system')
     dom = conn.lookupByName(dom_name)
     ifaces = dom.interfaceAddresses(libvirt.VIR_DOMAIN_INTERFACE_ADDRESSES_SRC_LEASE)
-    print('[dbg]ifaces: ', ifaces)
     # Only one interface
     for (name, val) in ifaces.iteritems():
         if val['addrs']:
@@ -59,7 +58,6 @@ class TestCaseValidateSshCreds(object):
     def _prepare(self):
         # Generate tmp dir
         ran_str = ''.join(random.sample(string.ascii_letters, 8))
-        print('[dbg]random string: ', ran_str)
         tmp_path = TEST_DIR + ran_str
         self.tmp_path = tmp_path
         os.mkdir(tmp_path)
@@ -87,7 +85,6 @@ class TestCaseValidateSshCreds(object):
 
         # Get ip of vm
         addr = get_addr(self.dom_name)
-        print('[dbg]addr: ', addr)
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         try:
@@ -111,7 +108,6 @@ class TestCaseValidateDiskExtend(object):
     def _prepare(self):
         # Generate tmp dir
         ran_str = ''.join(random.sample(string.ascii_letters, 8))
-        print('[dbg]random string: ', ran_str)
         tmp_path = TEST_DIR + ran_str
         self.tmp_path = tmp_path
         os.mkdir(tmp_path)
@@ -145,7 +141,6 @@ class TestCaseValidateDiskExtend(object):
 
         # Get ip of vm
         addr = get_addr(self.dom_name)
-        print('[dbg]addr: ', addr)
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         try:
@@ -170,6 +165,62 @@ class TestCaseValidateDiskExtend(object):
             self._clean_up()
             return "FAIL"
 
+class TeseCaseValidateDistro(object):
+
+    def __init__(self, image):
+        self.image = image
+
+    def _prepare(self):
+        # Generate tmp dir
+        ran_str = ''.join(random.sample(string.ascii_letters, 8))
+        tmp_path = TEST_DIR + ran_str
+        self.tmp_path = tmp_path
+        os.mkdir(tmp_path)
+        shutil.copy(self.image, tmp_path)
+
+        # Create vm
+        os.chdir(TEST_DIR + ran_str)
+        img_file = os.path.split(sys.argv[1])[-1]
+        self.dom_name = img_file
+
+        cmd_create = 'virt-install --name ' + self.dom_name + ' --disk path=' + img_file + \
+                     ',bus=virtio,cache=none --network network=default,model=virtio' \
+                     ' --ram 4096  --vcpus 2 --accelerate --boot hd ' \
+                     '--vnc --vnclisten 0.0.0.0 --noreboot --autostart --import'
+        os.system(cmd_create)
+        time.sleep(10)
+        cmd_start = 'virsh --connect qemu:///system start ' + img_file
+        os.system(cmd_start)
+        time.sleep(WAIT_VM_OK_TIME)
+
+    def _clean_up(self):
+        clean_up(self.dom_name, self.tmp_path)
+
+    def execute(self):
+        self._prepare()
+
+        # Get ip of vm
+        addr = get_addr(self.dom_name)
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        try:
+            ssh.connect(addr, username=DEFAULT_SSH_USER, password=DEFAULT_SSH_PASSWORD)
+            stdin, stdout, stderr = ssh.exec_command('cat /etc/centos-release')
+            if '6.5' in stdout:
+                print('Distro is 6.5 OK')
+                ssh.close()
+                self._clean_up()
+                return 'PASS'
+            else:
+                print('Distro is 6.5 FAIL')
+                ssh.close()
+                self._clean_up()
+                return "FAIL"
+        except Exception as e:
+            print('Distro is 6.5 FAIL')
+            self._clean_up()
+            return "FAIL"
+
 
 def main():
     if len(sys.argv) < 2 or not os.path.exists(sys.argv[1]):
@@ -191,6 +242,14 @@ def main():
         return -1
     else:
         print('OK: Validate disk extend automatically')
+
+    print("=====TestCase 3: Validate distro=====")
+    test_distro = TeseCaseValidateDistro(sys.argv[1])
+    if test_distro.execute() == "FAIL":
+        print('FAIL: Validate distro 6.5')
+        return -1
+    else:
+        print('OK: Validate distro 6.5')
 
     return 0
 
