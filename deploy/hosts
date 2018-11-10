@@ -1,11 +1,12 @@
 deploy ansible_host=127.0.0.1 ansible_python_interpreter=python
 
-aibuild01 ansible_host=172.23.61.4
-aibuild02 ansible_host=172.23.61.5
+worker01 ansible_host=10.110.19.1
+worker02 ansible_host=10.110.19.3
+aibuild ansible_host=10.110.19.150 ansible_ssh_pass=Lc13yfwpW
 
-[aibuild]
-aibuild01
-aibuild02
+[worker]
+worker01
+worker02
 
-[aibuild:vars]
-ansible_ssh_pass=Lc13yfwpW
+[worker:vars]
+ansible_ssh_pass=LCyfw1036
