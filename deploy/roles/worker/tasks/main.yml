@@ -2,13 +2,8 @@
 
 - name: Install qemu-kvm and unzip
   apt:
-    name: '{{ item }}'
+    name: ['qemu-kvm', 'unzip']
     state: latest
-  with_items:
-    - qemu-kvm
-    - unzip
-    - apache2
-    - git
 
 - name: Download packer
   get_url:

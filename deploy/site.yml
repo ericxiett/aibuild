@@ -31,6 +31,12 @@
   roles:
     - server
 
+- name: Setup web server for storage and release images
+  hosts: worker01
+  user: root
+  roles:
+    - web
+
 - name: Inform installer
   hosts: deploy
   connection: local
