@@ -2,12 +2,8 @@
 
 - name: Install related packages for mariadb
   apt:
-    name: "{{ item }}"
+    name: ['mariadb-server', 'python-pymysql', 'python-mysqldb']
     state: latest
-  with_items:
-    - mariadb-server
-    - python-pymysql
-    - python-mysqldb
 
 - name: Create arobot db config
   template:
