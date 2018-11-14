@@ -7,7 +7,8 @@ if [[ ! -x $PACKER_EXEC ]]; then
 fi
 echo $PACKER_EXEC
 
-ISOURL="http://10.2.32.9/isos/CentOS-6.5-x86_64-minimal.iso"
+ISONAME="CentOS-6.5-x86_64-minimal.iso"
+ISOURL=$ISOS_URL$ISONAME
 OUTDIR=/tmp/centos65-$BUILD_TAG
 IMGNAME=centos65x86_64-$BUILD_TAG.qcow2
 

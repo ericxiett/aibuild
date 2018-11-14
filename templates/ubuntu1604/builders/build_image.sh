@@ -7,7 +7,8 @@ if [[ ! -x $PACKER_EXEC ]]; then
 fi
 echo $PACKER_EXEC
 
-ISOURL=http://releases.ubuntu.com/16.04.5/ubuntu-16.04.5-server-amd64.iso
+ISONAME="ubuntu-16.04.5-server-amd64.iso"
+ISOURL=$ISOS_URL$ISONAME
 OUTDIR=/tmp/ubuntu1604-$BUILD_TAG
 IMGNAME=ubuntu1604x86_64-$BUILD_TAG.qcow2
 CHANGE=$CHANGE_TITLE

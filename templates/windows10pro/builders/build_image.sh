@@ -7,7 +7,8 @@ if [[ ! -x $PACKER_EXEC ]]; then
 fi
 echo $PACKER_EXEC
 
-ISOURL="http://10.2.32.9/isos/cn_windows_10_consumer_edition_version_1803_updated_sep_2018_x64_dvd_a3fcbed0.iso"
+ISONAME="cn_windows_10_consumer_edition_version_1803_updated_sep_2018_x64_dvd_a3fcbed0.iso"
+ISOURL=$ISOS_URL$ISONAME
 OUTDIR=/tmp/WIN10PROX86_64-$BUILD_TAG
 IMGNAME=WIN10PROX86_64-$BUILD_TAG.qcow2
 GIT_COMMIT=sjt-test

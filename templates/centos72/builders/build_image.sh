@@ -7,26 +7,26 @@ if [[ ! -x $PACKER_EXEC ]]; then
 fi
 echo $PACKER_EXEC
 
-ISONAME="SW_DVD9_Windows_Svr_Std_and_DataCtr_2012_R2_64Bit_ChnSimp_-4_MLF_X19-82889.ISO"
+ISONAME="CentOS-7-x86_64-Minimal-1511.iso"
 ISOURL=$ISOS_URL$ISONAME
-OUTDIR=/tmp/WIN2012R2DC-$BUILD_TAG
-IMGNAME=WIN2012R2DCx86_64-$BUILD_TAG.qcow2
+OUTDIR=/tmp/centos72-$BUILD_TAG
+IMGNAME=centos72x86_64-$BUILD_TAG.qcow2
 
 echo "Build: "$BUILD_TAG
 echo "GIT_COMMIT: "$GIT_COMMIT
 
 echo "Workspace: "$WORKSPACE
 cd $WORKSPACE
-$PACKER_EXEC build -var "outdir=$OUTDIR" -var "vmname=$IMGNAME" -var "isourl=$ISOURL" WIN2012R2DCx86_64.json
+$PACKER_EXEC build -var "outdir=$OUTDIR" -var "vmname=$IMGNAME" -var "isourl=$ISOURL" centos72x86_64.json
 
 generate_post_data()
 {
     cat <<EOF
 {
     "image_name":"$IMGNAME",
-    "os_type":"Windows",
-    "os_distro":"Windows",
-    "os_ver":"2012 R2 DC",
+    "os_type":"Linux",
+    "os_distro":"centos",
+    "os_ver":"7.2",
     "from_iso":"$ISOURL",
     "update_contents":"$GIT_COMMIT"
 }
@@ -42,6 +42,7 @@ if [[ -e "$OUTDIR/$IMGNAME" ]]; then
 
     # Move image to build dir
     mv $OUTDIR/$IMGNAME /var/www/html/images/build/
+    virt-sysprep -a /var/www/html/images/build/$IMGNAME
 else
     echo "Image not generated successfully"
     exit 1

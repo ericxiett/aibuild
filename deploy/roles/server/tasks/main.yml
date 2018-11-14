@@ -1,5 +1,10 @@
 ---
 
+- name: Install git
+  apt:
+    name: git
+    state: latest
+
 - name: Create aibuild database
   mysql_db:
     name: aibuild
@@ -21,12 +26,8 @@
 
 - name: Install pkgs
   apt:
-    name: "{{ item }}"
+    name: python-pecan
     state: latest
-  with_items:
-    - python-pecan
-    - apache2
-    - libapache2-mod-wsgi
 
 - name: Install aibuild python libs
   command: python setup.py develop
@@ -51,16 +52,12 @@
   args:
     chdir: /opt/aibuild/aibuild/cmd/
 
-- name: Copy conf for mod_wsgi
-  template:
-    src: apache2_aibuild.conf.j2
-    dest: /etc/apache2/conf-available/aibuild.conf
+- name: Copy start script
+  copy:
+    src: files/start_server.sh
+    dest: /opt/aibuild/
 
-- name: Create softlink
-  command: ln -s /etc/apache2/conf-available/aibuild.conf /etc/apache2/conf-enabled/aibuild.conf
-
-- name: Start aibuild
-  service:
-    name: apache2
-    enabled: yes
-    state: restarted
+- name: Start server
+  command: sh start_server.sh
+  args:
+    chdir: /opt/aibuild/

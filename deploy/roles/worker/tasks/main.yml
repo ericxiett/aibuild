@@ -2,13 +2,8 @@
 
 - name: Install qemu-kvm and unzip
   apt:
-    name: '{{ item }}'
+    name: ['qemu-kvm', 'unzip']
     state: latest
-  with_items:
-    - qemu-kvm
-    - unzip
-    - apache2
-    - git
 
 - name: Download packer
   get_url:
@@ -21,17 +16,3 @@
     dest: /opt
     remote_src: yes
     mode: ug+x
-
-- name: Create web server directories
-  file:
-    path: '{{ item }}'
-    state: directory
-  with_items:
-    - /var/www/html/images/build
-    - /var/www/html/images/release
-
-- name: Start apache2 service
-  service:
-    name: apache2
-    state: restarted
-    enabled: yes

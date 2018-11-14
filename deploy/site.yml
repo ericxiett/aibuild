@@ -8,28 +8,34 @@
         starttime: '{{ ansible_date_time }}'
 
 - name: Setup worker
-  hosts: aibuild01
+  hosts: worker
   user: root
   roles:
     - worker
 
 - name: Setup cid env
-  hosts: aibuild02
+  hosts: aibuild
   user: root
   roles:
     - cid
 
 - name: Setup db
-  hosts: aibuild01
+  hosts: aibuild
   user: root
   roles:
     - db
 
 - name: Setup aibuild server
-  hosts: aibuild01
+  hosts: aibuild
   user: root
   roles:
     - server
+
+- name: Setup web server for storage and release images
+  hosts: worker01
+  user: root
+  roles:
+    - web
 
 - name: Inform installer
   hosts: deploy
