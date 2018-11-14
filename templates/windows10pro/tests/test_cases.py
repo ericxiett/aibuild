@@ -1,10 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 import libvirt
 import math
 import time
 import os
+import logging
 import random
 import shutil
 import string
@@ -24,7 +25,7 @@ DEFAULTT_SERVER_BOOT_TIMEOUT = 60
 DEFAULT_SSH_USER = 'root'
 DEFAULT_SSH_PASSWORD = 'Lc13yfwpW'
 
-TEST_DIR = '/tmp/'
+TEST_DIR = '/home/'
 
 
 def toIPAddrType(addrType):
@@ -48,7 +49,7 @@ def get_addr(dom_name):
     conn.close()
 
 
-def get_winrm_connection(ip="localhost", port="5985", username="administrator", password="Lc13yfwpW", **kwargs):
+def get_winrm_connection(ip="localhost", port="5985", username="administrator", password="123456a?", **kwargs):
     """
     obtain winrm connection
     :param ip: virtual machine ip
@@ -89,7 +90,9 @@ def _output_log_to_file(conn, dom, log_file_path='/var/log/sjt-test.log'):
     new_dom_xml = et.tostring(root)
 
     dom.undefine()
-    dom.defineXML(new_dom_xml)
+
+    logging.info('define a domain')
+    dom = conn.defineXML(new_dom_xml)
 
     return dom
 
@@ -128,9 +131,11 @@ class TestBase(object):
 
     def __enter__(self):
         self.create_domain()
+        self.start_domain()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        print('cleaning up temp folders')
         self.clean_up()
 
     def create_domain(self):
@@ -152,11 +157,12 @@ class TestBase(object):
         shutil.copy(image, tmp_path)
 
         # copy and backup tested image
+        print (TEST_DIR + ran_str)
         os.chdir(TEST_DIR + ran_str)
         img_file = os.path.split(sys.argv[1])[-1]
 
         # resize drive to DEFAULT_SYSDISK_SIZE
-        os.system('qemu-img resize ' + img_file + ' +' + (DEFAULT_SYSDISK_SIZE - 40) + 'G')
+        os.system('qemu-img resize ' + img_file + ' +' + str(DEFAULT_SYSDISK_SIZE - 40) + 'G')
 
         # I have not been able to think of an esaier solution to this
         # libvirt python library requires XML to define a domain
@@ -183,7 +189,7 @@ class TestBase(object):
     def _initialize_connection(self):
 
         if not self.conn:
-            self.conn = libvirt.open(None)
+            self.conn = libvirt.open("qemu:///system")
             if not self.conn:
                 print "Failed connecting local libvirt daemon!"
                 raise Exception('Failed connecting local libvirt daemon!')
@@ -200,7 +206,7 @@ class TestBase(object):
         if not domain_name:
             return
 
-        dom = self._lookup_domain_by_name(domain_name)
+        dom = self._lookup_domain_by_name()
         self.dom = _output_log_to_file(self.conn, dom)
 
     def start_domain(self, updatable=True):
@@ -211,13 +217,14 @@ class TestBase(object):
         """
         domain_name = self.domain_name
         if updatable:
-            self.update_domain(domain_name)
-        dom = self._lookup_domain_by_name(domain_name)
+            self.update_domain()
+        # dom = self._lookup_domain_by_name()
 
         # this method is synchronous by nature
         # but in a specific test case, one should
         # wait for os bootup to continue further operations
-        dom.create()
+        print "start domain"
+        self.dom.create()
 
         # waiting for a specific period of time
         time.sleep(DEFAULTT_SERVER_BOOT_TIMEOUT)
@@ -267,7 +274,7 @@ class TestOsEdition(TestStub):
     using `systeminfo` command
     """
 
-    OS_EDITION = u"Windows 10"
+    OS_EDITION = r"Windows Server 2016 Datacenter"
     TEST_NAME = "Test OS Edition"
 
     def run_test(self, **kwargs):
@@ -275,11 +282,12 @@ class TestOsEdition(TestStub):
         r = s.run_cmd('systeminfo')
 
         if r.status_code == 0:
-            out = r.std_out.split(r"\r\n")
+            out = r.std_out.split("\r\n")
             for line in out:
                 if re.search(u"OS NAME|OS 名称", line, re.IGNORECASE):
+                    print line
                     os_edition = TestOsEdition.OS_EDITION
-                    if not os_edition:
+                    if os_edition:
                         if re.search(os_edition, line, re.IGNORECASE):
                             return True
             else:
@@ -295,34 +303,35 @@ def main():
         print("Please input image to be verified!")
         exit(1)
 
-    domain_name = sys.argv[0]
+    domain_name = sys.argv[2]
     image_file = sys.argv[1]
 
     try:
         with TestBase(domain_name, image_file) as stub:
 
-            kwargs = {}
+           kwargs = {}
 
-            # waiting for ip initialization
-            times = 3
-            while times >= 0:
-                ip = get_addr(stub.domain_name)
-                kwargs.update({"ip": ip})
-                if ip:
-                    break
-                time.sleep(60)
-                times -= 1
+           # waiting for ip initialization
+           times = 3
+           while times >= 0:
+               ip = get_addr(stub.domain_name)
+               kwargs.update({"ip": ip})
+               if ip:
+                   break
+               time.sleep(60)
+               times -= 1
 
-            for test_class in TestStub.__subclasses__():
-                print "%s is running" % test_class.TEST_NAME
-                ret = test_class().run_test(**kwargs)
-                if ret:
-                    print "%s finishes correctly" % test_class.TEST_NAME
-                else:
-                    print "%s does not work" % test_class.TEST_NAME
-                    return 1
+           print(str(kwargs))
+           for test_class in TestStub.__subclasses__():
+               print "%s is running" % test_class.TEST_NAME
+               ret = test_class().run_test(**kwargs)
+               if ret:
+                   print "%s finishes correctly" % test_class.TEST_NAME
+               else:
+                   print "%s does not work" % test_class.TEST_NAME
+                   return 1
     except Exception as e:
-        print (e)
+        print e
         return 1
 
     return 0
