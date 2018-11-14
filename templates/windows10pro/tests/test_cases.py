@@ -1,16 +1,25 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import libvirt
+import math
+import time
 import os
 import random
 import shutil
 import string
 import sys
-import time
+import re
 import xml.etree.ElementTree as et
 from xml.etree.ElementTree import Element as element
-import paramiko
+import winrm
 
-DEFAULT_SYSDISK_SIZE = 40
+
+DEFAULT_SYSDISK_SIZE = 80
 WAIT_VM_OK_TIME = 600 # second
+TOLERANCE = 1024 * 1024 * 1024 * 5
+
+DEFAULTT_SERVER_BOOT_TIMEOUT = 60
 
 DEFAULT_SSH_USER = 'root'
 DEFAULT_SSH_PASSWORD = 'Lc13yfwpW'
@@ -37,6 +46,19 @@ def get_addr(dom_name):
                 return addr['addr']
 
     conn.close()
+
+
+def get_winrm_connection(ip="localhost", port="5985", username="administrator", password="Lc13yfwpW", **kwargs):
+    """
+    obtain winrm connection
+    :param ip: virtual machine ip
+    :param port:
+    :param username:
+    :param password:
+    :return:
+    """
+    session = winrm.Session("%s:%s" % (ip, port), auth=(username, password))
+    return session
 
 
 def _output_log_to_file(conn, dom, log_file_path='/var/log/sjt-test.log'):
@@ -85,6 +107,10 @@ def clean_up(dom_name, tmp_path):
 
 
 class TestBase(object):
+    """
+    fixme give it a better name
+    TestBase is used to set up environment for all the following tests
+    """
 
     def __init__(self, domain_name, image):
         self.conn = None
@@ -129,12 +155,15 @@ class TestBase(object):
         os.chdir(TEST_DIR + ran_str)
         img_file = os.path.split(sys.argv[1])[-1]
 
+        # resize drive to DEFAULT_SYSDISK_SIZE
+        os.system('qemu-img resize ' + img_file + ' +' + (DEFAULT_SYSDISK_SIZE - 40) + 'G')
+
         # I have not been able to think of an esaier solution to this
         # libvirt python library requires XML to define a domain
         # better learn how nova handles this
         cmd_create = 'virt-install --name ' + domain_name + ' --disk path=' + img_file + \
                      ',bus=virtio,cache=none --network network=default,model=virtio' \
-                     ' --ram 4096  --vcpus 2 --accelerate --boot hd ' \
+                     ' --ram 8192  --vcpus 4 --accelerate --boot hd ' \
                      ' --console pty,target_type=serial ' \
                      '--vnc --vnclisten 0.0.0.0 --noreboot --autostart --import'
         os.system(cmd_create)
@@ -190,178 +219,75 @@ class TestBase(object):
         # wait for os bootup to continue further operations
         dom.create()
 
+        # waiting for a specific period of time
+        time.sleep(DEFAULTT_SERVER_BOOT_TIMEOUT)
 
-class TestCaseValidateSshCreds(object):
-
-    def __init__(self, image):
-        self.image = image
-
-    def _prepare(self):
-        # Generate tmp dir
-        ran_str = ''.join(random.sample(string.ascii_letters, 8))
-        tmp_path = TEST_DIR + ran_str
-        self.tmp_path = tmp_path
-        os.mkdir(tmp_path)
-        shutil.copy(self.image, tmp_path)
-
-        # Create vm
-        os.chdir(TEST_DIR + ran_str)
-        img_file = os.path.split(sys.argv[1])[-1]
-        self.dom_name = img_file
-        cmd_create = 'virt-install --name ' + self.dom_name + ' --disk path=' + img_file + \
-                     ',bus=virtio,cache=none --network network=default,model=virtio' \
-                     ' --ram 4096  --vcpus 2 --accelerate --boot hd ' \
-                     '--vnc --vnclisten 0.0.0.0 --noreboot --autostart --import'
-        os.system(cmd_create)
-        time.sleep(10)
-        cmd_start = 'virsh --connect qemu:///system start ' + img_file
-        os.system(cmd_start)
-        time.sleep(WAIT_VM_OK_TIME)
-
-    def _clean_up(self):
-        clean_up(self.dom_name, self.tmp_path)
-
-    def execute(self):
-        self._prepare()
-
-        # Get ip of vm
-        addr = get_addr(self.dom_name)
-        ssh = paramiko.SSHClient()
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        try:
-            ssh.connect(addr, username=DEFAULT_SSH_USER, password=DEFAULT_SSH_PASSWORD)
-            print('User root is set OK')
-            ssh.close()
-            self._clean_up()
-            return "PASS"
-        except Exception as e:
-            print('User root is set FAIL')
-            self._clean_up()
-            return "FAIL"
+    def run_test(self, **kwargs):
+        pass
 
 
-class TestCaseValidateDiskExtend(object):
+class TestStub(object):
 
-    def __init__(self, image, size):
-        self.image = image
-        self.size = size
+    TEST_NAME = None
 
-    def _prepare(self):
-        # Generate tmp dir
-        ran_str = ''.join(random.sample(string.ascii_letters, 8))
-        tmp_path = TEST_DIR + ran_str
-        self.tmp_path = tmp_path
-        os.mkdir(tmp_path)
-        shutil.copy(self.image, tmp_path)
-
-        # Create vm
-        os.chdir(TEST_DIR + ran_str)
-        img_file = os.path.split(sys.argv[1])[-1]
-        self.dom_name = img_file
-
-        # Resize
-        os.system('qemu-img resize ' + img_file + ' +' + self.size + 'G')
-        self.exp_cap_min = DEFAULT_SYSDISK_SIZE + int(self.size) - 5
-        self.exp_cap_max = DEFAULT_SYSDISK_SIZE + int(self.size) + 5
-
-        cmd_create = 'virt-install --name ' + self.dom_name + ' --disk path=' + img_file + \
-                     ',bus=virtio,cache=none --network network=default,model=virtio' \
-                     ' --ram 4096  --vcpus 2 --accelerate --boot hd ' \
-                     '--vnc --vnclisten 0.0.0.0 --noreboot --autostart --import'
-        os.system(cmd_create)
-        time.sleep(10)
-        cmd_start = 'virsh --connect qemu:///system start ' + img_file
-        os.system(cmd_start)
-        time.sleep(WAIT_VM_OK_TIME)
-
-    def _clean_up(self):
-        clean_up(self.dom_name, self.tmp_path)
-
-    def execute(self):
-        self._prepare()
-
-        # Get ip of vm
-        addr = get_addr(self.dom_name)
-        ssh = paramiko.SSHClient()
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        try:
-            ssh.connect(addr, username=DEFAULT_SSH_USER, password=DEFAULT_SSH_PASSWORD)
-            stdin, stdout, stderr = ssh.exec_command('df -h')
-            for line in stdout:
-                if 'vda' in line and 'boot' not in line:
-                    act_cap = int(line.split('G')[0][-2:])
-                    if self.exp_cap_min < act_cap < self.exp_cap_max:
-                        print('Root partition grow OK')
-                        ssh.close()
-                        self._clean_up()
-                        return "PASS"
-
-            print('Root partition grow FAIL')
-            ssh.close()
-            self._clean_up()
-            return "FAIL"
-
-        except Exception as e:
-            print('Root partition grow FAIL')
-            self._clean_up()
-            return "FAIL"
+    def run_test(self, **kwargs):
+        pass
 
 
-class TeseCaseValidateDistro(object):
+class TestCaseValidateDiskExtend(TestStub):
 
-    def __init__(self, image):
-        self.image = image
+    TEST_NAME = "Test Disk Resize"
 
-    def _prepare(self):
-        # Generate tmp dir
-        ran_str = ''.join(random.sample(string.ascii_letters, 8))
-        tmp_path = TEST_DIR + ran_str
-        self.tmp_path = tmp_path
-        os.mkdir(tmp_path)
-        shutil.copy(self.image, tmp_path)
+    def run_test(self, **kwargs):
+        ps_script = """
+        $disk = Get-WmiObject Win32_LogicalDisk -Filter "DeviceID='C:'"
+        echo $disk.size
+        """
 
-        # Create vm
-        os.chdir(TEST_DIR + ran_str)
-        img_file = os.path.split(sys.argv[1])[-1]
-        self.dom_name = img_file
+        s = get_winrm_connection(**kwargs)
+        r = s.run_ps(ps_script)
 
-        cmd_create = 'virt-install --name ' + self.dom_name + ' --disk path=' + img_file + \
-                     ',bus=virtio,cache=none --network network=default,model=virtio' \
-                     ' --ram 4096  --vcpus 2 --accelerate --boot hd ' \
-                     '--vnc --vnclisten 0.0.0.0 --noreboot --autostart --import'
-        os.system(cmd_create)
-        time.sleep(10)
-        cmd_start = 'virsh --connect qemu:///system start ' + img_file
-        os.system(cmd_start)
-        time.sleep(WAIT_VM_OK_TIME)
+        if r.status_code == 0:
+            # fixme set initial size default to 40G
+            size = int(kwargs.get('size', DEFAULT_SYSDISK_SIZE)) * 1024 * 1024 * 1024
+            real_size = int(r.std_out)
 
-    def _clean_up(self):
-        clean_up(self.dom_name, self.tmp_path)
-
-    def execute(self):
-        self._prepare()
-
-        # Get ip of vm
-        addr = get_addr(self.dom_name)
-        ssh = paramiko.SSHClient()
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        try:
-            ssh.connect(addr, username=DEFAULT_SSH_USER, password=DEFAULT_SSH_PASSWORD)
-            stdin, stdout, stderr = ssh.exec_command('cat /etc/centos-release')
-            if '6.5' in stdout:
-                print('Distro is 6.5 OK')
-                ssh.close()
-                self._clean_up()
-                return 'PASS'
+            if math.fabs(size - real_size) < TOLERANCE:
+                return True
             else:
-                print('Distro is 6.5 FAIL')
-                ssh.close()
-                self._clean_up()
-                return "FAIL"
-        except Exception as e:
-            print('Distro is 6.5 FAIL')
-            self._clean_up()
-            return "FAIL"
+                raise Exception("Drive Size does not grow expectively, make sure cloudbase-init correctly installed")
+        else:
+            print "Failed Executing Powershell Script"
+            raise Exception(r.std_err)
+
+
+class TestOsEdition(TestStub):
+    """
+    verify operating system edition
+    using `systeminfo` command
+    """
+
+    OS_EDITION = u"Windows 10"
+    TEST_NAME = "Test OS Edition"
+
+    def run_test(self, **kwargs):
+        s = get_winrm_connection(**kwargs)
+        r = s.run_cmd('systeminfo')
+
+        if r.status_code == 0:
+            out = r.std_out.split(r"\r\n")
+            for line in out:
+                if re.search(u"OS NAME|OS 名称", line, re.IGNORECASE):
+                    os_edition = TestOsEdition.OS_EDITION
+                    if not os_edition:
+                        if re.search(os_edition, line, re.IGNORECASE):
+                            return True
+            else:
+                # cannot find target edition
+                raise  Exception("OS Edition Information Cannot Be Found")
+        else:
+            print("Test failed %d, %s", r.status_code, r.std_err)
+            raise Exception(r.std_err)
 
 
 def main():
@@ -369,29 +295,35 @@ def main():
         print("Please input image to be verified!")
         exit(1)
 
-    print("=====TestCase 1: Validate ssh creds=====")
-    test_ssh = TestCaseValidateSshCreds(sys.argv[1])
-    if test_ssh.execute() == "FAIL":
-        print('FAIL: Validate ssh creds')
-        return -1
-    else:
-        print('OK: Validate ssh creds')
+    domain_name = sys.argv[0]
+    image_file = sys.argv[1]
 
-    print("=====TestCase 2: Validate disk extend=====")
-    test_diskex = TestCaseValidateDiskExtend(sys.argv[1], '60')
-    if test_diskex.execute() == "FAIL":
-        print('FAIL: Validate disk extend automatically')
-        return -1
-    else:
-        print('OK: Validate disk extend automatically')
+    try:
+        with TestBase(domain_name, image_file) as stub:
 
-    print("=====TestCase 3: Validate distro=====")
-    test_distro = TeseCaseValidateDistro(sys.argv[1])
-    if test_distro.execute() == "FAIL":
-        print('FAIL: Validate distro 6.5')
-        return -1
-    else:
-        print('OK: Validate distro 6.5')
+            kwargs = {}
+
+            # waiting for ip initialization
+            times = 3
+            while times >= 0:
+                ip = get_addr(stub.domain_name)
+                kwargs.update({"ip": ip})
+                if ip:
+                    break
+                time.sleep(60)
+                times -= 1
+
+            for test_class in TestStub.__subclasses__():
+                print "%s is running" % test_class.TEST_NAME
+                ret = test_class().run_test(**kwargs)
+                if ret:
+                    print "%s finishes correctly" % test_class.TEST_NAME
+                else:
+                    print "%s does not work" % test_class.TEST_NAME
+                    return 1
+    except Exception as e:
+        print (e)
+        return 1
 
     return 0
 
