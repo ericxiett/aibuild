@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import libvirt
+import logging
 import math
 import time
 import os
@@ -89,7 +90,7 @@ def _output_log_to_file(conn, dom, log_file_path='/var/log/sjt-test.log'):
     new_dom_xml = et.tostring(root)
 
     dom.undefine()
-    dom.defineXML(new_dom_xml)
+    dom = conn.defineXML(new_dom_xml)
 
     return dom
 
@@ -103,6 +104,7 @@ def clean_up(dom_name, tmp_path):
     conn.close()
 
     # Remove tmp path
+    logging.info("remove %s", tmp_path)
     shutil.rmtree(tmp_path)
 
 
@@ -127,7 +129,12 @@ class TestBase(object):
         clean_up(self.domain_name, self.tmp_path)
 
     def __enter__(self):
+
+        logging.info('start creating virtual machine')
         self.create_domain()
+
+        logging.info('start virtual machine')
+        self.start_domain()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -137,7 +144,6 @@ class TestBase(object):
         """
         create(define) a new domain
         :param image:
-        :param domain_name:
         :return:
         """
 
@@ -149,6 +155,8 @@ class TestBase(object):
         tmp_path = TEST_DIR + ran_str
         self.tmp_path = tmp_path
         os.mkdir(tmp_path)
+
+        logging.info("creating tmp folder", TEST_DIR + ran_str)
         shutil.copy(image, tmp_path)
 
         # copy and backup tested image
@@ -156,11 +164,13 @@ class TestBase(object):
         img_file = os.path.split(sys.argv[1])[-1]
 
         # resize drive to DEFAULT_SYSDISK_SIZE
-        os.system('qemu-img resize ' + img_file + ' +' + (DEFAULT_SYSDISK_SIZE - 40) + 'G')
+        logging.info('resizing image file')
+        os.system('qemu-img resize ' + img_file + ' +' + str(DEFAULT_SYSDISK_SIZE - 40) + 'G')
 
         # I have not been able to think of an esaier solution to this
         # libvirt python library requires XML to define a domain
         # better learn how nova handles this
+        logging.info('creating test virtual machine')
         cmd_create = 'virt-install --name ' + domain_name + ' --disk path=' + img_file + \
                      ',bus=virtio,cache=none --network network=default,model=virtio' \
                      ' --ram 8192  --vcpus 4 --accelerate --boot hd ' \
@@ -192,7 +202,6 @@ class TestBase(object):
         """
         update a domain (better inactive)
         by default, add log
-        :param domain_name:
         :return:
         """
 
@@ -200,7 +209,7 @@ class TestBase(object):
         if not domain_name:
             return
 
-        dom = self._lookup_domain_by_name(domain_name)
+        dom = self._lookup_domain_by_name()
         self.dom = _output_log_to_file(self.conn, dom)
 
     def start_domain(self, updatable=True):
@@ -211,8 +220,8 @@ class TestBase(object):
         """
         domain_name = self.domain_name
         if updatable:
-            self.update_domain(domain_name)
-        dom = self._lookup_domain_by_name(domain_name)
+            self.update_domain()
+        dom = self._lookup_domain_by_name()
 
         # this method is synchronous by nature
         # but in a specific test case, one should
@@ -295,8 +304,8 @@ def main():
         print("Please input image to be verified!")
         exit(1)
 
-    domain_name = sys.argv[0]
     image_file = sys.argv[1]
+    domain_name = sys.argv[2]
 
     try:
         with TestBase(domain_name, image_file) as stub:
@@ -322,7 +331,7 @@ def main():
                     print "%s does not work" % test_class.TEST_NAME
                     return 1
     except Exception as e:
-        print (e)
+        logging.error(e)
         return 1
 
     return 0
