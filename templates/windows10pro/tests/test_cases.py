@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import libvirt
-import logging
 import math
 import time
 import os
@@ -18,16 +17,56 @@ import winrm
 
 
 DEFAULT_SYSDISK_SIZE = 80
-WAIT_VM_OK_TIME = 600 # second
+WAIT_VM_OK_TIME = 600  # second
 TOLERANCE = 1024 * 1024 * 1024 * 5
-
 DEFAULTT_SERVER_BOOT_TIMEOUT = 60
-
-DEFAULT_SSH_USER = 'root'
-DEFAULT_SSH_PASSWORD = 'Lc13yfwpW'
-
 TEST_DIR = '/home/'
+VIRTINSTALL_CMD = """
+virt-install --name %(domain_name)s --disk path=%(img_file)s,bus=virtio,cache=none 
+                     --network network=default,model=virtio --memballoon virtio
+                     --ram 8192  --vcpus 4 --accelerate --boot hd
+                     --console pty,target_type=serial
+                     --vnc --vnclisten 0.0.0.0 --noreboot --autostart --import
+"""
 
+
+def setup_logging():
+    """
+    setup cumstom logging layout
+    :return:
+    """
+    logging_format = "%(asctime)s - %(name)s.%(lineno)s - %(levelname)s - %(message)s"
+    logging.basicConfig(level=logging.INFO, format=logging_format)
+
+
+def wait_for_ready(domain_name):
+    """
+    require domain name and output its ip
+    :param domain_name:
+    :return:
+    """
+    times = 3
+    ip = None
+    while times >= 0:
+        ip = get_addr(domain_name)
+        if ip:
+            break
+        time.sleep(60)
+        times -= 1
+
+    if not ip:
+        raise Exception("dhcp packet is not received, check if driver installed correctly")
+
+    times = 3
+    while times >= 0:
+        try:
+            session = get_winrm_connection(ip=ip)
+            session.run_cmd('echo "Hello"')
+        except Exception as e:
+            logging.exception("winrm connection failed, check winrm configuration")
+            raise e
+
+    return ip
 
 def toIPAddrType(addrType):
     if addrType == libvirt.VIR_IP_ADDR_TYPE_IPV4:
@@ -139,13 +178,12 @@ class TestBase(object):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        print('cleaning up temp folders')
+        logging.info('cleaning up temp folders')
         self.clean_up()
 
     def create_domain(self):
         """
         create(define) a new domain
-        :param image:
         :return:
         """
 
@@ -162,7 +200,7 @@ class TestBase(object):
         shutil.copy(image, tmp_path)
 
         # copy and backup tested image
-        print (TEST_DIR + ran_str)
+        logging.debug("creating tmp folder: %s", TEST_DIR + ran_str)
         os.chdir(TEST_DIR + ran_str)
         img_file = os.path.split(sys.argv[1])[-1]
 
@@ -174,11 +212,10 @@ class TestBase(object):
         # libvirt python library requires XML to define a domain
         # better learn how nova handles this
         logging.info('creating test virtual machine')
-        cmd_create = 'virt-install --name ' + domain_name + ' --disk path=' + img_file + \
-                     ',bus=virtio,cache=none --network network=default,model=virtio' \
-                     ' --ram 8192  --vcpus 4 --accelerate --boot hd ' \
-                     ' --console pty,target_type=serial ' \
-                     '--vnc --vnclisten 0.0.0.0 --noreboot --autostart --import'
+        cmd_create = (VIRTINSTALL_CMD % {
+            "domain_name": domain_name,
+            "img_file": img_file
+        }).replace('\n', '')
         os.system(cmd_create)
 
     def _lookup_domain_by_name(self):
@@ -189,7 +226,7 @@ class TestBase(object):
 
         dom = self.conn.lookupByName(domain_name)
         if not dom:
-            print "Failed finding domain with name %s" % domain_name
+            logging.error("Failed finding domain with name %s" % domain_name)
             raise Exception("Failed finding domain with name %s" % domain_name)
         return dom
 
@@ -198,7 +235,7 @@ class TestBase(object):
         if not self.conn:
             self.conn = libvirt.open("qemu:///system")
             if not self.conn:
-                print "Failed connecting local libvirt daemon!"
+                logging.error("Failed connecting local libvirt daemon!")
                 raise Exception('Failed connecting local libvirt daemon!')
 
     def update_domain(self):
@@ -221,7 +258,6 @@ class TestBase(object):
         :param updatable: if one wants to domain should be updated before launching
         :return:
         """
-        domain_name = self.domain_name
         if updatable:
             self.update_domain()
         # dom = self._lookup_domain_by_name()
@@ -229,7 +265,7 @@ class TestBase(object):
         # this method is synchronous by nature
         # but in a specific test case, one should
         # wait for os bootup to continue further operations
-        print "start domain"
+        logging.info("start domain")
         self.dom.create()
 
         # waiting for a specific period of time
@@ -261,7 +297,7 @@ class TestCaseValidateDiskExtend(TestStub):
         r = s.run_ps(ps_script)
 
         if r.status_code == 0:
-            # fixme set initial size default to 40G
+            # fixme initial size may be better if not hardcode 40G
             size = int(kwargs.get('size', DEFAULT_SYSDISK_SIZE)) * 1024 * 1024 * 1024
             real_size = int(r.std_out)
 
@@ -270,7 +306,7 @@ class TestCaseValidateDiskExtend(TestStub):
             else:
                 raise Exception("Drive Size does not grow expectively, make sure cloudbase-init correctly installed")
         else:
-            print "Failed Executing Powershell Script"
+            logging.error("Failed Executing Powershell Script")
             raise Exception(r.std_err)
 
 
@@ -291,22 +327,22 @@ class TestOsEdition(TestStub):
             out = r.std_out.split("\r\n")
             for line in out:
                 if re.search(u"OS NAME|OS 名称", line, re.IGNORECASE):
-                    print line
+                    logging.info(line)
                     os_edition = TestOsEdition.OS_EDITION
                     if os_edition:
                         if re.search(os_edition, line, re.IGNORECASE):
                             return True
             else:
                 # cannot find target edition
-                raise  Exception("OS Edition Information Cannot Be Found")
+                raise Exception("OS Edition Information Cannot Be Found")
         else:
-            print("Test failed %d, %s", r.status_code, r.std_err)
+            logging.error("Test failed %d, %s", r.status_code, r.std_err)
             raise Exception(r.std_err)
 
 
 def main():
     if len(sys.argv) < 2 or not os.path.exists(sys.argv[1]):
-        print("Please input image to be verified!")
+        logging.warning("Please input image to be verified!")
         exit(1)
 
     image_file = sys.argv[1]
@@ -315,27 +351,20 @@ def main():
     try:
         with TestBase(domain_name, image_file) as stub:
 
-           kwargs = {}
+            # wait for ready will make sure
+            # 1. ip is setup
+            # 2. winrm connection is ready
+            kwargs = {"ip": wait_for_ready(stub.domain_name)}
 
-           # waiting for ip initialization
-           times = 3
-           while times >= 0:
-               ip = get_addr(stub.domain_name)
-               kwargs.update({"ip": ip})
-               if ip:
-                   break
-               time.sleep(60)
-               times -= 1
-
-           print(str(kwargs))
-           for test_class in TestStub.__subclasses__():
-               print "%s is running" % test_class.TEST_NAME
-               ret = test_class().run_test(**kwargs)
-               if ret:
-                   print "%s finishes correctly" % test_class.TEST_NAME
-               else:
-                   print "%s does not work" % test_class.TEST_NAME
-                   return 1
+            logging.info("kwargs gonna feed into test classes: %s", str(kwargs))
+            for test_class in TestStub.__subclasses__():
+                logging.info("%s is running" % test_class.TEST_NAME)
+                ret = test_class().run_test(**kwargs)
+                if ret:
+                    logging.info("%s finishes correctly" % test_class.TEST_NAME)
+                else:
+                    logging.info("%s does not work" % test_class.TEST_NAME)
+                    return 1
     except Exception as e:
         logging.error(e)
         return 1
@@ -344,4 +373,5 @@ def main():
 
 
 if __name__ == '__main__':
+    setup_logging()
     sys.exit(main())
