@@ -63,8 +63,11 @@ def wait_for_ready(domain_name):
             session = get_winrm_connection(ip=ip)
             session.run_cmd('echo "Hello"')
         except Exception as e:
-            logging.exception("winrm connection failed, check winrm configuration")
-            raise e
+            if times <= 1:
+                logging.exception("winrm connection failed, check winrm configuration")
+                raise e
+            time.sleep(60)
+        times -= 1
 
     return ip
 
