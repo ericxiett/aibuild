@@ -2,3 +2,21 @@
 db_connection = mysql+pymysql://aibuild:aibuild@127.0.0.1/aibuild?charset=utf8
 
 pecan_config_path = /arobot/config.py
+
+# Gitlab server
+gitlab_server = http://127.0.0.1:49011
+
+# Access token for gitlab
+access_token_gitlab = XXX
+
+# Jenkins server
+jenkins_server = http://127.0.0.1:49001
+
+# User on jenkins
+jenkins_user = admin
+
+# Password on jenkins
+jenkins_password = Lc13yfwpW
+
+# URL that isos located
+isos_url = http://127.0.0.1/isos
