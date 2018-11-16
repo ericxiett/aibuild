@@ -197,13 +197,12 @@ class TestBase(object):
         ran_str = ''.join(random.sample(string.ascii_letters, 8))
         tmp_path = TEST_DIR + ran_str
         self.tmp_path = tmp_path
-        os.mkdir(tmp_path)
 
-        logging.info("creating tmp folder", TEST_DIR + ran_str)
+        logging.info("creating tmp folder: %s and copy %s", TEST_DIR + ran_str, image)
+        os.mkdir(tmp_path)
         shutil.copy(image, tmp_path)
 
         # copy and backup tested image
-        logging.debug("creating tmp folder: %s", TEST_DIR + ran_str)
         os.chdir(TEST_DIR + ran_str)
         img_file = os.path.split(sys.argv[1])[-1]
 
