@@ -139,16 +139,23 @@ def _output_log_to_file(conn, dom, log_file_path='/var/log/sjt-test.log'):
 
 
 def clean_up(dom_name, tmp_path):
-    # Destroy dom
-    conn = libvirt.open('qemu:///system')
-    dom = conn.lookupByName(dom_name)
-    dom.destroy()
-    dom.undefine()
-    conn.close()
 
-    # Remove tmp path
-    logging.info("remove %s", tmp_path)
-    shutil.rmtree(tmp_path)
+    try:
+        # Destroy dom
+        conn = libvirt.open('qemu:///system')
+        dom = conn.lookupByName(dom_name)
+        dom.destroy()
+        dom.undefine()
+        conn.close()
+    except Exception:
+        logging.exception("connection to qemu failed")
+
+    try:
+        # Remove tmp path
+        logging.info("remove %s", tmp_path)
+        shutil.rmtree(tmp_path)
+    except Exception:
+        logging.exception("remove %s failed", tmp_path)
 
 
 class TestBase(object):
