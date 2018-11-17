@@ -1,11 +1,13 @@
 from templates.test_context import context
 import logging
+from time import sleep
 
 logging_format = "%(asctime)s - %(name)s.%(lineno)s - %(levelname)s - %(message)s"
 logging.basicConfig(level=logging.INFO, format=logging_format)
 
 
-@context.WinrmLibvirtContext("sjt-test.domain", "path/to/image")
+@context.WinrmLibvirtContext("sjt-test.domain",
+                             "/home/sjt/py-winrm/src/aibuild/templates/windows10pro/tests/win-test.qcow2")
 class TestCases(object):
     """
     demo test case
@@ -13,9 +15,25 @@ class TestCases(object):
 
     def __init__(self):
         self.conn = None
+        self.logger = logging.getLogger(__name__)
 
     def init(self, *args, **kwargs):
-        self.conn = self.get_connection('ip', 5985, 'username', 'password')
+        """
+        init parameters
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        times = 5
+        self.logger.debug('show get_connection function: %s', self.get_connection)
+        while times >= 0:
+            self.logger.info("start connecting to domain")
+            try:
+                self.conn = self.get_connection('administrator', '123456a?')
+                sleep(60)
+            except Exception:
+                pass
+            times -= 1
 
     @context.test
     def test_one(self):

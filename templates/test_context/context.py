@@ -1,4 +1,5 @@
 import libvirt
+from functools import partial
 import paramiko
 import logging
 import string
@@ -30,7 +31,7 @@ def setup_logging():
     :return:
     """
     logging_format = "[%(asctime)s] - %(levelname)s - %(name)s.%(lineno)s - %(message)s"
-    logging.basicConfig(level=logging.INFO, format=logging_format)
+    logging.basicConfig(level=logging.DEBUG, format=logging_format)
 
 
 def toIPAddrType(addrType):
@@ -54,7 +55,7 @@ def get_addr(dom_name):
     conn.close()
 
 
-def get_ssh_connection(ip, port=22, username=None, password=None, **kwargs):
+def get_ssh_connection(ip="localhost", port=22, username=None, password=None, **kwargs):
     addr = ip
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -175,7 +176,7 @@ class LibvirtContext(GenericContext):
         attrs = dir(test_obj)
 
         with self:
-            self.set_connect(test_obj)
+            self.set_connection(test_obj)
             for attr in attrs:
                 if hasattr(getattr(test_obj, attr), "test_this"):
                     logging.info('running test: %s', attr)
@@ -183,7 +184,7 @@ class LibvirtContext(GenericContext):
                 else:
                     logging.debug('method: %s appears not to be a test method', attr)
 
-    def set_connect(self, obj):
+    def set_connection(self, obj):
         pass
 
     def clean_up(self):
@@ -295,12 +296,20 @@ class LibvirtContext(GenericContext):
         # waiting for a specific period of time
         time.sleep(DEFAULTT_SERVER_BOOT_TIMEOUT)
 
+    @property
+    def ip(self):
+        ip = get_addr(self.domain_name)
+        logging.debug('domain %s IP %s', self.domain_name, ip)
+        return ip
+
 
 class SshLibvirtContext(LibvirtContext):
     def set_connection(self, obj):
-        setattr(obj, 'get_connection', get_ssh_connection)
+        ssh_connection = partial(get_ssh_connection, ip=self.ip, port=22)
+        setattr(obj, 'get_connection', ssh_connection)
 
 
 class WinrmLibvirtContext(LibvirtContext):
     def set_connection(self, obj):
-        setattr(obj, 'get_connection', get_winrm_connection)
+        winrm_connection = partial(get_winrm_connection, ip=self.ip, port=5985)
+        setattr(obj, 'get_connection', winrm_connection)
