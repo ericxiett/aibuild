@@ -55,7 +55,7 @@ def get_addr(dom_name):
     conn.close()
 
 
-def get_ssh_connection(ip="localhost", port=22, username=None, password=None, **kwargs):
+def get_ssh_connection(obj, ip="localhost", port=22, username=None, password=None, **kwargs):
     addr = ip
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -63,9 +63,10 @@ def get_ssh_connection(ip="localhost", port=22, username=None, password=None, **
     return conn
 
 
-def get_winrm_connection(ip="localhost", port="5985", username="administrator", password="123456a?", **kwargs):
+def get_winrm_connection(obj, ip="localhost", port="5985", username="administrator", password="123456a?", **kwargs):
     """
     obtain winrm connection
+    :param obj
     :param ip: virtual machine ip
     :param port:
     :param username:
@@ -318,5 +319,8 @@ class SshLibvirtContext(LibvirtContext):
 
 class WinrmLibvirtContext(LibvirtContext):
     def set_connection(self, obj):
+
+        # a function is upgraded to be a method
+        # which should be taken great care of when using
         winrm_connection = partial(get_winrm_connection, ip=self.ip, port=5985)
         setattr(obj, 'get_connection', winrm_connection)
