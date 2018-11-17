@@ -31,8 +31,8 @@ class TestCases(object):
             try:
                 self.conn = self.get_connection('administrator', '123456a?')
                 sleep(60)
-            except Exception:
-                pass
+            except Exception as e:
+                self.logger.error("there is something wrong %s when call method %s", e, self.get_connection)
             times -= 1
 
     @context.test
