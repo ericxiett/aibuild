@@ -1,6 +1,8 @@
 from templates.test_context import context
+import logging
 
-obj = context.LibvirtContext()
+logging_format = "%(asctime)s - %(name)s.%(lineno)s - %(levelname)s - %(message)s"
+logging.basicConfig(level=logging.INFO, format=logging_format)
 
 
 @context.WinrmLibvirtContext("sjt-test.domain", "path/to/image")

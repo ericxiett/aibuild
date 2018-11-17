@@ -1,12 +1,10 @@
 import libvirt
 import paramiko
-import abc
 import logging
 import string
 import time
 import random
 import os
-import sys
 import shutil
 import xml.etree.ElementTree as et
 from xml.etree.ElementTree import Element as element
@@ -228,7 +226,7 @@ class LibvirtContext(GenericContext):
 
         # copy and backup tested image
         os.chdir(TEST_DIR + ran_str)
-        img_file = os.path.split(sys.argv[1])[-1]
+        img_file = os.path.split(image)[-1]
 
         # resize drive to DEFAULT_SYSDISK_SIZE
         logging.info('resizing image file')
