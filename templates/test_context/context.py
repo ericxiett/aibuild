@@ -59,8 +59,8 @@ def get_ssh_connection(ip="localhost", port=22, username=None, password=None, **
     addr = ip
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    conn = ssh.connect(addr, port=int(port), username=username, password=password)
-    return conn
+    ssh.connect(addr, port=int(port), username=username, password=password)
+    return ssh
 
 
 def get_winrm_connection(ip="localhost", port="5985", username="administrator", password="123456a?", **kwargs):
