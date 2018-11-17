@@ -55,7 +55,7 @@ def get_addr(dom_name):
     conn.close()
 
 
-def get_ssh_connection(obj, ip="localhost", port=22, username=None, password=None, **kwargs):
+def get_ssh_connection(ip="localhost", port=22, username=None, password=None, **kwargs):
     addr = ip
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -63,7 +63,7 @@ def get_ssh_connection(obj, ip="localhost", port=22, username=None, password=Non
     return conn
 
 
-def get_winrm_connection(obj, ip="localhost", port="5985", username="administrator", password="123456a?", **kwargs):
+def get_winrm_connection(ip="localhost", port="5985", username="administrator", password="123456a?", **kwargs):
     """
     obtain winrm connection
     :param obj
