@@ -30,6 +30,9 @@ class TestCases(object):
             self.logger.info("start connecting to domain")
             try:
                 self.conn = self.get_connection('administrator', '123456a?')
+
+                # trigger some actions, make sure connection is ok
+                self.conn.run_cmd('systeminfo')
                 break
             except Exception as e:
                 self.logger.error("there is something wrong %s when call method %s", e, self.get_connection)
