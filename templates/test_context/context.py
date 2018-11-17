@@ -162,6 +162,7 @@ class LibvirtContext(GenericContext):
         self.dom = None
         self.tmp_path = None
         self.domain_name = domain_name
+        self.logger = logging.getLogger(__name__)
 
     def __call__(self, *args, **kwargs):
         super(LibvirtContext, self).__call__(*args, **kwargs)
@@ -177,12 +178,18 @@ class LibvirtContext(GenericContext):
 
         with self:
             self.set_connection(test_obj)
+
+            # call init function
+            if hasattr(test_obj, 'init'):
+                getattr(test_obj, "init")(*args, **kwargs)
+
+            # search & call methods with signiture
             for attr in attrs:
                 if hasattr(getattr(test_obj, attr), "test_this"):
-                    logging.info('running test: %s', attr)
+                    self.logger.info('running test: %s', attr)
                     getattr(test_obj, attr)()
                 else:
-                    logging.debug('method: %s appears not to be a test method', attr)
+                    self.logger.debug('method: %s appears not to be a test method', attr)
 
     def set_connection(self, obj):
         pass
@@ -196,15 +203,15 @@ class LibvirtContext(GenericContext):
 
     def __enter__(self):
 
-        logging.info('start creating virtual machine')
+        self.logger.info('start creating virtual machine')
         self.create_domain()
 
-        logging.info('start virtual machine')
+        self.logger.info('start virtual machine')
         self.start_domain()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        logging.info('cleaning up temp folders')
+        self.logger.info('cleaning up temp folders')
         self.clean_up()
 
     def create_domain(self):
@@ -221,7 +228,7 @@ class LibvirtContext(GenericContext):
         tmp_path = TEST_DIR + ran_str
         self.tmp_path = tmp_path
 
-        logging.info("creating tmp folder: %s and copy %s", TEST_DIR + ran_str, image)
+        self.logger.info("creating tmp folder: %s and copy %s", TEST_DIR + ran_str, image)
         os.mkdir(tmp_path)
         shutil.copy(image, tmp_path)
 
@@ -230,13 +237,13 @@ class LibvirtContext(GenericContext):
         img_file = os.path.split(image)[-1]
 
         # resize drive to DEFAULT_SYSDISK_SIZE
-        logging.info('resizing image file')
+        self.logger.info('resizing image file')
         os.system('qemu-img resize ' + img_file + ' +' + str(DEFAULT_SYSDISK_SIZE - 40) + 'G')
 
         # I have not been able to think of an esaier solution to this
         # libvirt python library requires XML to define a domain
         # better learn how nova handles this
-        logging.info('creating test virtual machine')
+        self.logger.info('creating test virtual machine')
         cmd_create = (VIRTINSTALL_CMD % {
             "domain_name": domain_name,
             "img_file": img_file
@@ -251,7 +258,7 @@ class LibvirtContext(GenericContext):
 
         dom = self.conn.lookupByName(domain_name)
         if not dom:
-            logging.error("Failed finding domain with name %s" % domain_name)
+            self.logger.error("Failed finding domain with name %s" % domain_name)
             raise Exception("Failed finding domain with name %s" % domain_name)
         return dom
 
@@ -260,7 +267,7 @@ class LibvirtContext(GenericContext):
         if not self.conn:
             self.conn = libvirt.open("qemu:///system")
             if not self.conn:
-                logging.error("Failed connecting local libvirt daemon!")
+                self.logger.error("Failed connecting local libvirt daemon!")
                 raise Exception('Failed connecting local libvirt daemon!')
 
     def update_domain(self):
@@ -290,7 +297,7 @@ class LibvirtContext(GenericContext):
         # this method is synchronous by nature
         # but in a specific test case, one should
         # wait for os bootup to continue further operations
-        logging.info("start domain")
+        self.logger.info("start domain")
         self.dom.create()
 
         # waiting for a specific period of time
@@ -299,7 +306,7 @@ class LibvirtContext(GenericContext):
     @property
     def ip(self):
         ip = get_addr(self.domain_name)
-        logging.debug('domain %s IP %s', self.domain_name, ip)
+        self.logger.debug('domain %s IP %s', self.domain_name, ip)
         return ip
 
 

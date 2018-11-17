@@ -3,7 +3,7 @@ import logging
 from time import sleep
 
 logging_format = "%(asctime)s - %(name)s.%(lineno)s - %(levelname)s - %(message)s"
-logging.basicConfig(level=logging.INFO, format=logging_format)
+logging.basicConfig(level=logging.DEBUG, format=logging_format)
 
 
 @context.WinrmLibvirtContext("sjt-test.domain",
