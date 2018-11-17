@@ -199,12 +199,15 @@ class LibvirtContext(GenericContext):
                 if hasattr(getattr(test_obj, attr), INIT_METHOD):
                     self.logger.info('running init method: %s', attr)
                     getattr(test_obj, attr)()
+
+                    # only run one init method
+                    break
                 else:
-                    self.logger.debug('method: %s appears not to be a test method', attr)
+                    self.logger.debug('method: %s appears not to be a init method', attr)
 
             # search & call methods with signiture
             for attr in attrs:
-                if hasattr(getattr(test_obj, attr), "test_this"):
+                if hasattr(getattr(test_obj, attr), TEST_METHOD):
                     self.logger.info('running test: %s', attr)
                     getattr(test_obj, attr)()
                 else:
@@ -215,8 +218,11 @@ class LibvirtContext(GenericContext):
                 if hasattr(getattr(test_obj, attr), CLEANUP_METHOD):
                     self.logger.info('running cleanup method: %s', attr)
                     getattr(test_obj, attr)()
+
+                    # only run one cleanup method
+                    break
                 else:
-                    self.logger.debug('method: %s appears not to be a test method', attr)
+                    self.logger.debug('method: %s appears not to be a cleanup method', attr)
 
     def set_connection(self, obj):
         pass
