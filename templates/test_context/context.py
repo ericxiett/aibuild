@@ -313,8 +313,9 @@ class LibvirtContext(GenericContext):
 
 class SshLibvirtContext(LibvirtContext):
     def set_connection(self, obj):
-        ssh_connection = partial(get_ssh_connection, ip=self.ip, port=22)
-        setattr(obj, 'get_connection', ssh_connection)
+        def wrapper(username, password):
+            return get_ssh_connection(ip=self.ip, port=22, username=username, password=password)
+        setattr(obj, 'get_connection', wrapper)
 
 
 class WinrmLibvirtContext(LibvirtContext):
@@ -322,5 +323,6 @@ class WinrmLibvirtContext(LibvirtContext):
 
         # a function is upgraded to be a method
         # which should be taken great care of when using
-        winrm_connection = partial(get_winrm_connection, ip=self.ip, port=5985)
-        setattr(obj, 'get_connection', winrm_connection)
+        def wrapper(username, password):
+            return get_winrm_connection(ip=self.ip, port=5985, username=username, password=password)
+        setattr(obj, 'get_connection', wrapper)
