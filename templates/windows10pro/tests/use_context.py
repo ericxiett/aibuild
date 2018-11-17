@@ -42,5 +42,5 @@ class TestCases(object):
     @context.test
     def test_one(self):
         cmd = 'echo hello'
-        self.conn.run_cmd(cmd)
-        pass
+        r = self.conn.run_cmd(cmd)
+        self.logger.info('test result [%s] of test_one is %s, %s', r.status_code, r.std_out, r.std_err)
