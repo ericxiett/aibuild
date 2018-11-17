@@ -24,6 +24,10 @@ virt-install --name %(domain_name)s --disk path=%(img_file)s,bus=virtio,cache=no
                      --vnc --vnclisten 0.0.0.0 --noreboot --autostart --import
 """
 
+TEST_METHOD = "context-test-method"
+INIT_METHOD = "context-init-method"
+CLEANUP_METHOD = "context-cleanup-method"
+
 
 def setup_logging():
     """
@@ -130,7 +134,17 @@ def clean_up(dom_name, tmp_path):
 
 
 def test(func):
-    func.test_this = True
+    setattr(func, TEST_METHOD, True)
+    return func
+
+
+def before(func):
+    setattr(func, INIT_METHOD, True)
+    return func
+
+
+def after(func):
+    setattr(func, CLEANUP_METHOD, True)
     return func
 
 
@@ -181,13 +195,25 @@ class LibvirtContext(GenericContext):
             self.set_connection(test_obj)
 
             # call init function
-            if hasattr(test_obj, 'init'):
-                getattr(test_obj, "init")(*args, **kwargs)
+            for attr in attrs:
+                if hasattr(getattr(test_obj, attr), INIT_METHOD):
+                    self.logger.info('running init method: %s', attr)
+                    getattr(test_obj, attr)()
+                else:
+                    self.logger.debug('method: %s appears not to be a test method', attr)
 
             # search & call methods with signiture
             for attr in attrs:
                 if hasattr(getattr(test_obj, attr), "test_this"):
                     self.logger.info('running test: %s', attr)
+                    getattr(test_obj, attr)()
+                else:
+                    self.logger.debug('method: %s appears not to be a test method', attr)
+
+            # call clean up method
+            for attr in attrs:
+                if hasattr(getattr(test_obj, attr), CLEANUP_METHOD):
+                    self.logger.info('running cleanup method: %s', attr)
                     getattr(test_obj, attr)()
                 else:
                     self.logger.debug('method: %s appears not to be a test method', attr)
@@ -315,14 +341,15 @@ class SshLibvirtContext(LibvirtContext):
     def set_connection(self, obj):
         def wrapper(username, password):
             return get_ssh_connection(ip=self.ip, port=22, username=username, password=password)
+
         setattr(obj, 'get_connection', wrapper)
 
 
 class WinrmLibvirtContext(LibvirtContext):
     def set_connection(self, obj):
-
         # a function is upgraded to be a method
         # which should be taken great care of when using
         def wrapper(username, password):
             return get_winrm_connection(ip=self.ip, port='5985', username=username, password=password)
+
         setattr(obj, 'get_connection', wrapper)
