@@ -324,5 +324,5 @@ class WinrmLibvirtContext(LibvirtContext):
         # a function is upgraded to be a method
         # which should be taken great care of when using
         def wrapper(username, password):
-            return get_winrm_connection(ip=self.ip, port=5985, username=username, password=password)
+            return get_winrm_connection(ip=self.ip, port='5985', username=username, password=password)
         setattr(obj, 'get_connection', wrapper)
