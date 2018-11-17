@@ -30,10 +30,13 @@ class TestCases(object):
             self.logger.info("start connecting to domain")
             try:
                 self.conn = self.get_connection('administrator', '123456a?')
-                sleep(60)
             except Exception as e:
                 self.logger.error("there is something wrong %s when call method %s", e, self.get_connection)
+                sleep(60)
             times -= 1
+
+        if not self.conn:
+            raise Exception('Init Connection failed')
 
     @context.test
     def test_one(self):
