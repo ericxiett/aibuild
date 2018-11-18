@@ -1,5 +1,6 @@
 import libvirt
 from functools import partial
+import argparse
 import paramiko
 import logging
 import string
@@ -166,14 +167,30 @@ class GenericContext(object):
         pass
 
 
-class LibvirtContext(GenericContext):
+class CallableContext(GenericContext):
+    def __init__(self, *args, **kwargs):
+        super(CallableContext, self).__init__(args, kwargs)
+        self.parser = None
+
+    def _get_parser(self, description):
+        parser = argparse.ArgumentParser(description=description)
+        parser.add_argument('-f', '--file', dest='image_file', required=True, description='path/to/image_file')
+        return parser
+
+    def __call__(self, *args, **kwargs):
+        description = kwargs.get('description', 'generic context description')
+        self.parser = self._get_parser(description)
+
+
+class LibvirtContext(CallableContext):
     """
     libvirt test_context
     """
 
-    def __init__(self, domain_name, image):
+    def __init__(self, domain_name):
+        super(LibvirtContext, self).__init__(domain_name)
         self.conn = None
-        self.image = image
+        self.image = None
         self.dom = None
         self.tmp_path = None
         self.domain_name = domain_name
@@ -181,6 +198,7 @@ class LibvirtContext(GenericContext):
 
     def __call__(self, *args, **kwargs):
         super(LibvirtContext, self).__call__(*args, **kwargs)
+        self.image = self.parser.image_file
         self.init(*args, **kwargs)
 
     def init(self, *args, **kwargs):

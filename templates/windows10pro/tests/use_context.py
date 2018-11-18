@@ -6,8 +6,7 @@ logging_format = "%(asctime)s - %(name)s.%(lineno)s - %(levelname)s - %(message)
 logging.basicConfig(level=logging.DEBUG, format=logging_format)
 
 
-@context.WinrmLibvirtContext("sjt-test.domain",
-                             "/home/sjt/py-winrm/src/aibuild/templates/windows10pro/tests/win-test.qcow2")
+@context.WinrmLibvirtContext("sjt-test.domain")
 class TestCases(object):
     """
     demo test case

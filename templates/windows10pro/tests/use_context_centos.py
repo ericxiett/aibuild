@@ -6,8 +6,7 @@ logging_format = "%(asctime)s - %(name)s.%(lineno)s - %(levelname)s - %(message)
 logging.basicConfig(level=logging.DEBUG, format=logging_format)
 
 
-@context.SshLibvirtContext("sjt-test.centos.domain",
-                             "/home/sjt/py-winrm/src/aibuild/templates/windows10pro/tests/centos-test.qcow2")
+@context.SshLibvirtContext("sjt-test.centos.domain")
 class TestCases(object):
     """
     demo test case
