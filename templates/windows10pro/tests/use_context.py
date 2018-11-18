@@ -17,6 +17,7 @@ class TestCases(object):
         self.conn = None
         self.logger = logging.getLogger(__name__)
 
+    @context.before
     def init(self, *args, **kwargs):
         """
         init parameters
