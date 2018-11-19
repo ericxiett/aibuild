@@ -17,6 +17,8 @@ WAIT_VM_OK_TIME = 600  # second
 TOLERANCE = 1024 * 1024 * 1024 * 5
 DEFAULTT_SERVER_BOOT_TIMEOUT = 60
 TEST_DIR = '/home/'
+
+# TODO disk, cpu, ram should all be configurable
 VIRTINSTALL_CMD = """
 virt-install --name %(domain_name)s --disk path=%(img_file)s,bus=virtio,cache=none 
                      --network network=default,model=virtio --memballoon virtio
@@ -174,7 +176,10 @@ class CallableContext(GenericContext):
 
     def _get_parser(self, description):
         parser = argparse.ArgumentParser(description=description)
-        parser.add_argument('-f', '--file', dest='image_file', required=True, description='path/to/image_file')
+        parser.add_argument('-f', '--file', dest='image_file', required=True, help='path/to/image_file')
+        parser.add_argument('-c', '--cpu', dest='cpu', required=False, help='number of cpus')
+        parser.add_argument('-r', '--ram', dest='ram', required=False, help='ram size')
+        parser.add_argument('-d', '--disk', dest='disk', required=False, help='disk size')
         return parser
 
     def __call__(self, *args, **kwargs):
