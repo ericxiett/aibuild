@@ -1,4 +1,5 @@
 import sys
+import uuid
 
 import requests
 
@@ -42,6 +43,7 @@ def release_image_to_env():
 
 def get_image_info(image):
     # TODO: 1. Get info through API.
+    url = 'http://aibuild-server.com:9753/v1/validate/' + image
 
     # TODO: 2. if 1 OK, check file if exists
     pass

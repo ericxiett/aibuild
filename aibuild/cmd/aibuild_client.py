@@ -101,7 +101,7 @@ def main():
             parser.set_defaults(action_fn=action_fn)
             parser.set_defaults(action_kwargs=action_kwargs)
 
-    match_args = top_parser.parse_args(sys.argv)
+    match_args = top_parser.parse_args(sys.argv[1:])
     print('match_args: %s' % match_args)
     fn = match_args.action_fn
     fn_args = fetch_func_args(fn, match_args)

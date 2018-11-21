@@ -61,6 +61,7 @@ Database: aibuild
 |field|type|Null|Key|Default|Extra|
 |------|------|------|------|------|------|
 |env_uuid|varchar(36)|NO|PRI|NULL||
+|env_name|varchar(64)|NO||NULL||
 |auth_url|varchar(255)|NO||NULL||
 |project_domain_name|varchar(64)|NO||NULL||
 |user_domain_name|varchar(64)|NO||NULL||

@@ -89,3 +89,13 @@ class API(object):
         session.close()
 
         return env_uuid
+
+    def get_validated_image_by_uuid(self, image_uuid):
+        session = sessionmaker(bind=self.engine)()
+        try:
+            image_info = session.query(models.ImageValidateLog).filter_by(
+                image_uuid=image_uuid).one()
+        except sqlalchemy.orm.exc.NoResultFound as e:
+            image_info = None
+        session.close()
+        return image_info
