@@ -54,3 +54,38 @@ class API(object):
         session.close()
 
         return image_uuid
+
+    def add_new_env_info(self, env_info):
+        """
+        Add env info to database
+        :param env_info: a dict object
+        example:
+        {
+            "image_name": "ubuntu1604x86_64.qcow2",
+            "os_type": "Linux",
+            "os_distro": "ubuntu"
+            "os_ver": "16.04",
+            "from_iso": "http://releases.ubuntu.com/16.04/ubuntu-16.04.5-server-amd64.iso",
+            "update_contents": "Add cloud-init"
+        }
+        :return: env_uuid: UUID of env
+        :raise:
+        """
+        session = sessionmaker(bind=self.engine)()
+
+        env_uuid = str(uuid.uuid4())
+
+        session.add(models.OpenStackEnvInfo(
+            env_uuid=env_uuid,
+            auth_url=env_info.get('auth_url'),
+            project_domain_name=env_info.get('project_domain_name'),
+            user_domain_name=env_info.get('user_domain_name'),
+            project_name=env_info.get('project_name'),
+            username=env_info.get('username'),
+            password=env_info.get('password'),
+            region=env_info.get('region')
+        ))
+        session.commit()
+        session.close()
+
+        return env_uuid

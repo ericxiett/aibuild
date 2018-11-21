@@ -2,7 +2,7 @@
 
 - name: Install qemu-kvm and unzip
   apt:
-    name: ['qemu-kvm', 'unzip']
+    name: ['qemu-kvm', 'unzip', 'virt-sysprep']
     state: latest
 
 - name: Download packer

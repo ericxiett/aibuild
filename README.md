@@ -11,6 +11,13 @@
 3. Jenkins触发构建流程，构建结束将数据库更新
 4. 管理员和运维人员通过API/CLI查看镜像来龙去脉
 
+### Release Flow
+存在2个主要流程
+1. 环境注册：通过CLI或者API注册镜像可以推送到的环境，保证环境和镜像服务器
+之间网络连通性；
+2. 镜像发布：构建开始通过手动输入环境名称和要推送的镜像，构建过程会推送镜像到
+环境。
+
 ### DB Design
 
 Database: aibuild
@@ -27,6 +34,7 @@ Database: aibuild
 |build_at|datetime|YES||NULL||
 |from_iso|varchar(255)|YES||NULL||
 |update_contents|text|YES||NULL||
+|get_url|varchar(255)|YES||NULL||
 
 * Table: validate_log
 
@@ -36,6 +44,7 @@ Database: aibuild
 |validate_case|varchar(255)|YES||NULL||
 |validate_result|varchar(10)|YES||NULL||
 |validate_at|datetime|YES||NULL||
+|get_url|varchar(255)|YES||NULL||
 
 * Table: release_log
 
@@ -45,6 +54,20 @@ Database: aibuild
 |openstack_cluster|varchar(60)|YES||NULL||
 |glance_id|varchar(36)|YES||NULL||
 |release_at|datetime|YES||NULL||
+|get_url|varchar(255)|YES||NULL||
+
+* Table: env_info
+
+|field|type|Null|Key|Default|Extra|
+|------|------|------|------|------|------|
+|env_uuid|varchar(36)|NO|PRI|NULL||
+|auth_url|varchar(255)|NO||NULL||
+|project_domain_name|varchar(64)|NO||NULL||
+|user_domain_name|varchar(64)|NO||NULL||
+|project_name|varchar(64)|NO||NULL||
+|username|varchar(255)|NO||NULL||
+|password|varchar(255)|NO||NULL||
+|region|varchar(255)|NO||NULL||
 
 
 ## Install
