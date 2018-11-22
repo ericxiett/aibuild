@@ -33,7 +33,7 @@ class Dbcommands(object):
 
 class Envcommands(object):
 
-    @args('--file', metavar='<FILE>', help='Xls file that contains info of envs.')
+    @args('file', metavar='<FILE>', help='Xls file that contains info of envs.')
     def register(self, file=None):
         if not file or not os.path.exists(file):
             print('Please input valid file!')
@@ -43,7 +43,7 @@ class Envcommands(object):
         sh = book.sheet_by_name('envs')
         for row in range(1, sh.nrows):
 
-            url = CONF.get('DEFAULT', 'api_server')
+            url = CONF.get('DEFAULT', 'api_server') + '/env'
             data = {
                 'env_name': sh.cell_value(row, 1),
                 'auth_url': sh.cell_value(row, 2),

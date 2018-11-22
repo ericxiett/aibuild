@@ -1,0 +1,5 @@
+sqlalchemy
+xlrd
+xlwt
+pecan
+requests
