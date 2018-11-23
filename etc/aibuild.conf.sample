@@ -20,3 +20,6 @@ jenkins_password = Lc13yfwpW
 
 # URL that isos located
 isos_url = http://127.0.0.1/isos
+
+# Api server
+api_server = http://aibuild-server.com:9753/v1

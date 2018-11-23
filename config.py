@@ -18,7 +18,7 @@ app = {
 logging = {
     'root': {'level': 'INFO', 'handlers': ['console']},
     'loggers': {
-        'aibuild': {'level': 'DEBUG', 'handlers': ['console'], 'propagate': False},
+        'aibuild': {'level': 'DEBUG', 'handlers': ['logfile'], 'propagate': False},
         'pecan': {'level': 'DEBUG', 'handlers': ['console'], 'propagate': False},
         'py.warnings': {'handlers': ['console']},
         '__force_dict__': True
