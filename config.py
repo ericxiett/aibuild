@@ -9,6 +9,7 @@ app = {
     'root': 'aibuild.controllers.root.RootController',
     'modules': ['aibuild'],
     'debug': True,
+    'template_path': '%(confdir)s/aibuild/templates',
     'errors': {
         404: '/error/404',
         '__force_dict__': True
