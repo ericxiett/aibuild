@@ -3,3 +3,5 @@ xlrd
 xlwt
 pecan
 requests
+python-gitlab
+python-jenkins

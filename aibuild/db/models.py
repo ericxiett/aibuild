@@ -5,45 +5,59 @@ from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
+class GuestOS(Base):
+    _tablename__ = 'guestos'
+
+    id = Column(String(36), primary_key=True, nullable=False)
+    name = Column(String(255), nullable=False)
+    type = Column(String(36), nullable=True)
+    distro = Column(String(36), nullable=True)
+    version = Column(String(36), nullable=True)
+    base_iso = Column(String(255), nullable=False)
+
 class ImageBuildLog(Base):
     __tablename__ = 'build_log'
 
-    image_uuid = Column(String(36), primary_key=True, nullable=False)
-    image_name = Column(String(255), nullable=True)
-    os_type = Column(String(20), nullable=True)
-    os_distro = Column(String(20), nullable=True)
-    os_ver = Column(String(10), nullable=True)
+    id = Column(String(36), primary_key=True, nullable=False)
+    image_name = Column(String(255), nullable=False)
+    os_id = Column(String(20), nullable=False)
     build_at = Column(DateTime, default=datetime.datetime.now())
-    from_iso = Column(String(255), nullable=True)
     update_contents = Column(Text, nullable=True)
     get_url = Column(String(255), nullable=True)
 
-class ImageValidateLog(Base):
-    __tablename__ = 'validate_log'
+class TestCases(Base):
+    __tablename__ = 'testcases'
 
-    image_uuid = Column(String(36), primary_key=True, nullable=False)
-    validate_case = Column(String(255), nullable=True)
-    validate_result = Column(String(10), nullable=True)
-    validate_at = Column(DateTime, default=datetime.datetime.now())
-    get_url = Column(String(255), nullable=True)
+    id = Column(String(36), primary_key=True, nullable=False)
+    name = Column(String(255), nullable=False)
+    os_type = Column(String(36), nullable=True)
+
+class ImageTestLog(Base):
+    __tablename__ = 'test_log'
+
+    id = Column(String(36), primary_key=True, nullable=False)
+    build_id = Column(String(36), nullable=False)
+    case_id = Column(String(36), nullable=False)
+    result = Column(String(10), nullable=False)
+    test_at = Column(DateTime, default=datetime.datetime.now())
 
 class ImageReleaseLog(Base):
     __tablename__ = 'release_log'
 
-    image_uuid = Column(String(36), primary_key=True, nullable=False)
-    openstack_cluster = Column(String(60), nullable=True)
+    id = Column(String(36), primary_key=True, nullable=False)
+    env_id = Column(String(60), nullable=True)
     glance_id = Column(String(36), nullable=True)
     release_at = Column(DateTime, default=datetime.datetime.now())
-    get_url = Column(String(255), nullable=True)
 
-class OpenStackEnvInfo(Base):
-    __tablename__ = 'openstack_env'
+class EnvInfo(Base):
+    __tablename__ = 'envs'
 
-    env_uuid = Column(String(36), primary_key=True, nullable=False)
-    auth_url = Column(String(255), nullable=True)
-    project_domain_name = Column(String(64), nullable=True)
-    user_domain_name = Column(String(64), nullable=True)
-    project_name = Column(String(64), nullable=True)
-    username = Column(String(255), nullable=True)
-    password = Column(String(255), nullable=True)
-    region = Column(String(255), nullable=True)
+    id = Column(String(36), primary_key=True, nullable=False)
+    name = Column(String(255), nullable=False)
+    auth_url = Column(String(255), nullable=False)
+    project_domain_name = Column(String(64), nullable=False)
+    user_domain_name = Column(String(64), nullable=False)
+    project_name = Column(String(64), nullable=False)
+    username = Column(String(255), nullable=False)
+    password = Column(String(255), nullable=False)
+    region = Column(String(255), nullable=False)

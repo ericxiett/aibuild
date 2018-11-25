@@ -1,5 +1,4 @@
 # Automate to build GuestOS images(AIBuild)
-[TOC]
 
 ## Introduce
 
@@ -11,57 +10,93 @@
 3. Jenkins触发构建流程，构建结束将数据库更新
 4. 管理员和运维人员通过API/CLI查看镜像来龙去脉
 
+### Init Flow
+
+初始化的工作包括：
+* 数据库建立，表的创建
+* web服务器建立，web根目录的建立
+
+### Build Flow
+
+* 待构建OS注册：通过xls注册，gitlab建立项目，jenkins建立job，web服务器建立子目录
+* 运维人员提交代码，触发构建
+* 构建完成后将镜像放置到子目录，形成url
+
+### Test Flow
+
+* 测试用例注册：通过xls注册，关联guest OS
+* 测试
+* 测试不通过会将build的镜像删除
+
 ### Release Flow
 存在2个主要流程
-1. 环境注册：通过CLI或者API注册镜像可以推送到的环境，保证环境和镜像服务器
+1. 环境注册：通过xls注册镜像可以推送到的环境，保证环境和镜像服务器
 之间网络连通性；
-2. 镜像发布：构建开始通过手动输入环境名称和要推送的镜像，构建过程会推送镜像到
-环境。
+2. 镜像发布：构建开始通过手动输入环境名称和要推送构建ID或者guestOS，构建过程会推送镜像到
+环境。注：如传入GuestOS，则会选择最新一次构建和测试都通过的镜像
 
 ### DB Design
 
 Database: aibuild
 
+* Table: guestos
+
+| field | type | Null | Key | Default | Extra |
+|------|------|------|------|------|------|
+|id|varchar(36)|NO|PRI|NULL||
+|name|varchar(255)|YES||NULL||
+|base_iso|varchar(255)|YES||NULL||
+|type|varchar(36)|YES||NULL||
+|distro|varchar(36)|YES||NULL||
+|version|varchar(36)|YES||NULL||
+
+
 * Table: build_log
 
 | field | type | Null | Key | Default | Extra |
 |------|------|------|------|------|------|
-|image_uuid|varchar(36)|NO|PRI|NULL||
+|id|varchar(36)|NO|PRI|NULL||
 |image_name|varchar(255)|YES||NULL||
-|os_type|varchar(20)|YES||NULL||
-|os_distro|varchar(20)|YES||NULL||
-|os_ver|varchar(10)|YES||NULL||
+|os_id|varchar(36)|YES||NULL||
 |build_at|datetime|YES||NULL||
-|from_iso|varchar(255)|YES||NULL||
 |update_contents|text|YES||NULL||
 |get_url|varchar(255)|YES||NULL||
 
-* Table: validate_log
+* Table: testcases
+
+| field | type | Null | Key | Default | Extra |
+|------|------|------|------|------|------|
+|id|varchar(36)|NO|PRI|NULL||
+|name|varchar(255)|YES||NULL||
+|os_type|varchar(36)|YES||NULL||
+
+os_type: 测试用例适用于linux或windows
+
+* Table: test_log
 
 |field|type|Null|Key|Default|Extra|
 |------|------|------|------|------|------|
-|image_uuid|varchar(36)|NO|PRI|NULL||
-|validate_case|varchar(255)|YES||NULL||
-|validate_result|varchar(10)|YES||NULL||
-|validate_at|datetime|YES||NULL||
-|get_url|varchar(255)|YES||NULL||
+|id|varchar(36)|NO|PRI|NULL||
+|build_id|varchar(36)|YES||NULL||
+|case_id|varchar(36)|YES||NULL||
+|result|varchar(10)|YES||NULL||
+|test_at|datetime|YES||NULL||
 
 * Table: release_log
 
 |field|type|Null|Key|Default|Extra|
 |------|------|------|------|------|------|
-|image_uuid|varchar(36)|NO|PRI|NULL||
-|openstack_cluster|varchar(60)|YES||NULL||
+|id|varchar(36)|NO|PRI|NULL||
+|env_id|varchar(60)|YES||NULL||
 |glance_id|varchar(36)|YES||NULL||
 |release_at|datetime|YES||NULL||
-|get_url|varchar(255)|YES||NULL||
 
-* Table: env_info
+* Table: envs
 
 |field|type|Null|Key|Default|Extra|
 |------|------|------|------|------|------|
-|env_uuid|varchar(36)|NO|PRI|NULL||
-|env_name|varchar(64)|NO||NULL||
+|id|varchar(36)|NO|PRI|NULL||
+|name|varchar(64)|NO||NULL||
 |auth_url|varchar(255)|NO||NULL||
 |project_domain_name|varchar(64)|NO||NULL||
 |user_domain_name|varchar(64)|NO||NULL||
