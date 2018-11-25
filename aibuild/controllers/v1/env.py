@@ -1,10 +1,10 @@
-from pecan import expose
+from pecan import expose, rest
 
 from aibuild.common.log_utils import LOG
 from aibuild.db import api
 
 
-class OpenStackEnvInfoController(object):
+class OpenStackEnvInfoController(rest.RestController):
 
     def __init__(self):
         super(OpenStackEnvInfoController, self).__init__()
