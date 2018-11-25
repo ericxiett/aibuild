@@ -48,7 +48,7 @@
     dest: /etc/aibuild/aibuild.conf
 
 - name: Sync db
-  command: python dbsync.py create
+  command: python aibuild_client.py db create
   args:
     chdir: /opt/aibuild/aibuild/cmd/
 
