@@ -39,11 +39,10 @@ class Envcommands(object):
             print('Please input valid file!')
             return
 
+        url = CONF.get('DEFAULT', 'api_server') + '/env'
         book = xlrd.open_workbook(file)
         sh = book.sheet_by_name('envs')
         for row in range(1, sh.nrows):
-
-            url = CONF.get('DEFAULT', 'api_server') + '/env'
             data = {
                 'env_name': sh.cell_value(row, 1),
                 'auth_url': sh.cell_value(row, 2),
@@ -63,9 +62,38 @@ class Envcommands(object):
         print('End registering env info!')
 
 
+class GuestOSCommands(object):
+
+    @args('file', help='Xls file that contains info of guestos')
+    def register(self, file=None):
+        if not file or os.path.exists(file):
+            print('Please input valid xls file')
+            return
+
+        url = CONF.get('DEFAULT', 'api_server') + '/guestos'
+        book = xlrd.open_workbook(file)
+        sh = book.sheet_by_name('guestos')
+        for row in range(1, sh.nrows):
+            data = {
+                'name': sh.cell_value(row, 1),
+                'base_iso': sh.cell_value(row, 2),
+                'type': sh.cell_value(row, 3),
+                'distro': sh.cell_value(row, 4),
+                'version': sh.cell_value(row, 5),
+            }
+            res = requests.post(url, data=data)
+            print('%s: %s' % (row, res.text))
+            if res.status_code != '200':
+                print('Failed to register guestos %s!' % sh.cell_value(row, 1))
+                continue
+
+        print('End registering guest os!')
+
+
 CATEGORIES = {
     'db': Dbcommands,
-    'env': Envcommands
+    'env': Envcommands,
+    'guestos': GuestOSCommands,
 }
 
 
