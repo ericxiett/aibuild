@@ -7,7 +7,7 @@ from aibuild.db import api
 class EnvInfoController(rest.RestController):
 
     def __init__(self):
-        super(OpenStackEnvInfoController, self).__init__()
+        super(EnvInfoController, self).__init__()
         self.db_api = api.API()
 
     @expose('json')
