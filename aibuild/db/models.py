@@ -6,7 +6,7 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 class GuestOS(Base):
-    _tablename__ = 'guestos'
+    __tablename__ = 'guestos'
 
     id = Column(String(36), primary_key=True, nullable=False)
     name = Column(String(255), nullable=False)
