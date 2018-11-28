@@ -18,20 +18,12 @@ class ImageBuildController(rest.RestController):
     def post(self, **kwargs):
         LOG.info('New build log received %s', kwargs)
 
-        image_uuid = None
         try:
             image_uuid = self.dbapi.add_build_log(kwargs)
         except Exception as e:
             LOG.error('Got error %s', e)
-            return {
-                'return_value': '1',
-                'image_name': kwargs.get('image_name'),
-                'message': e
-            }
-        finally:
-            LOG.info('Add build log successfully!')
-            return {
-                'return_value': '0',
-                'image_uuid': image_uuid,
-                'image_name': kwargs.get('image_name')
-            }
+            return dict(status=500, message=e.message)
+
+        LOG.info('Add build log successfully!')
+        kwargs['id'] = image_uuid
+        return dict(status=200, **kwargs)

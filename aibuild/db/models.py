@@ -20,7 +20,7 @@ class ImageBuildLog(Base):
 
     id = Column(String(36), primary_key=True, nullable=False)
     image_name = Column(String(255), nullable=False)
-    os_id = Column(String(20), nullable=False)
+    os_name = Column(String(255), nullable=False)
     build_at = Column(DateTime, default=datetime.datetime.now())
     update_contents = Column(Text, nullable=True)
     get_url = Column(String(255), nullable=True)

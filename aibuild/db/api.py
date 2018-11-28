@@ -22,38 +22,36 @@ class API(object):
         :param kwargs: a dict object
         example:
         {
-            "image_name": "ubuntu1604x86_64.qcow2",
-            "os_type": "Linux",
-            "os_distro": "ubuntu"
-            "os_ver": "16.04",
-            "from_iso": "http://releases.ubuntu.com/16.04/ubuntu-16.04.5-server-amd64.iso",
+            "image_name": "ubuntu1604x86_64_20181128_1.qcow2",
+            "os_name": "ubuntu1604",
             "update_contents": "Add cloud-init"
+            "get_url": "http://10.110.19.1/images/ubuntu1604/ubuntu1604x86_64_20181128_1.qcow2"
         }
         :return: image_uuid: UUID of image
         :raise:
         """
         if not build_log.get('image_name'):
             LOG.error("Invalid image name")
-            raise Exception
+            raise Exception(message='Null image name')
 
+        image_name = build_log.get('image_name')
         session = sessionmaker(bind=self.engine)()
+        build_log = session.query(models.ImageBuildLog).filter_by(
+            image_name=image_name).one()
+        log_id = str(uuid.uuid4())
+        if not build_log:
+            session.add(models.ImageBuildLog(
+                id=log_id,
+                image_name=image_name,
+                os_name=build_log.get('os_name'),
+                update_contents=build_log.get('update_contents'),
+                get_url=build_log.get('get_url'),
+                build_at=datetime.datetime.now()
+            ))
+            session.commit()
+            session.close()
 
-        image_uuid = str(uuid.uuid4())
-
-        session.add(models.ImageBuildLog(
-            image_uuid=image_uuid,
-            image_name=build_log.get('image_name'),
-            os_type=build_log.get('os_type'),
-            os_distro=build_log.get('os_distro'),
-            os_ver=build_log.get('os_ver'),
-            from_iso=build_log.get('from_iso'),
-            update_contents=build_log.get('update_contents'),
-            build_at=datetime.datetime.now()
-        ))
-        session.commit()
-        session.close()
-
-        return image_uuid
+        return log_id if not build_log else build_log.id
 
     def add_new_env_info(self, env_info):
         """
@@ -101,16 +99,20 @@ class API(object):
         return image_info
 
     def create_guestos(self, kwargs):
+        name = kwargs.get('name')
         guestos_id = str(uuid.uuid4())
         session = sessionmaker(bind=self.engine)()
-        session.add(models.GuestOS(
-            id=guestos_id,
-            name=kwargs.get('name'),
-            base_iso=kwargs.get('base_iso'),
-            type=kwargs.get('type'),
-            distro=kwargs.get('distro'),
-            version=kwargs.get('version')
-        ))
-        session.commit()
-        session.close()
-        return guestos_id
+        guestos = session.query(models.GuestOS).filter_by(
+                name=name).one()
+        if not guestos:
+            session.add(models.GuestOS(
+                id=guestos_id,
+                name=kwargs.get('name'),
+                base_iso=kwargs.get('base_iso'),
+                type=kwargs.get('type'),
+                distro=kwargs.get('distro'),
+                version=kwargs.get('version')
+            ))
+            session.commit()
+            session.close()
+        return guestos_id if not guestos else guestos.id
