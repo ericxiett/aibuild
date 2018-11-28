@@ -83,9 +83,6 @@ class GuestOSCommands(object):
             }
             res = requests.post(url, data=data)
             print('%s: %s' % (row, res.text))
-            if res.status_code != '200':
-                print('Failed to register guestos %s!' % sh.cell_value(row, 1))
-                continue
 
         print('End registering guest os!')
 

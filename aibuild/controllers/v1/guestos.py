@@ -37,6 +37,7 @@ class GuestOSController(rest.RestController):
             guestos_id = self.db_api.create_guestos(kwargs)
             self._create_project(kwargs.get('name'))
             self._create_job(kwargs)
+            self._add_webhook(kwargs)
         except Exception as e:
             LOG.info('Got error %s', e)
             return dict(status=500, message=e.message)
@@ -62,11 +63,12 @@ class GuestOSController(rest.RestController):
 
         return self.gitlab.groups.create({'name': group, 'path': group})
 
-    def _create_project(self, project_name):
+    def _create_project(self, prefix):
         existed_projects = []
         for pr in self.gitlab.projects.list():
             existed_projects.append(pr.name)
 
+        project_name = prefix + '_tpl'
         if project_name not in existed_projects:
             self.gitlab.projects.create(
                 {'name': project_name,
@@ -82,7 +84,7 @@ class GuestOSController(rest.RestController):
         template = Template(CONF_TEMPLATE)
         isos_url = base_iso
         gitlab_server = CONF.get('DEFAULT', 'gitlab_server')
-        git_url = gitlab_server + '/aibuild/' + job_name + '-tpl.git'
+        git_url = gitlab_server + '/aibuild/' + job_name.split('_')[2] + '_tpl.git'
         worker = self._choose_worker()
         return template.render(isos_url=isos_url, git_url=git_url, worker=worker)
 
@@ -98,3 +100,10 @@ class GuestOSController(rest.RestController):
             raise Exception(message='No worker node found')
         else:
             return random.choice(workers)
+
+    def _add_webhook(self, kwargs):
+        job_name = 'image_build_'+ kwargs.get('name')
+        project_name = kwargs.get('name') + '_tpl'
+        project = self.gitlab.projects.get('aibuild' + '/' + project_name)
+        url = CONF.get('DEFAULT', 'jenkins_server') + '/project/' + job_name
+        return project.hooks.create({'url': url, 'push_events': 1})
