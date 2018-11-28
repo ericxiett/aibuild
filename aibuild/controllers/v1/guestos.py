@@ -76,17 +76,20 @@ class GuestOSController(rest.RestController):
 
     def _create_job(self, kwargs):
         job_name = 'image_build_' + kwargs.get('name')
+        web_server = CONF.get('DEFAULT', 'web_server')
         conf_xml = self._render_conf(job_name,
-                                     kwargs.get('base_iso'))
+                                     kwargs.get('base_iso'),
+                                     web_server)
         self.jenkins.create_job(job_name, conf_xml)
 
-    def _render_conf(self, job_name, base_iso):
+    def _render_conf(self, job_name, base_iso, web_server):
         template = Template(CONF_TEMPLATE)
         isos_url = base_iso
         gitlab_server = CONF.get('DEFAULT', 'gitlab_server')
         git_url = gitlab_server + '/aibuild/' + job_name.split('_')[2] + '_tpl.git'
         worker = self._choose_worker()
-        return template.render(isos_url=isos_url, git_url=git_url, worker=worker)
+        return template.render(isos_url=isos_url, git_url=git_url,
+                               worker=worker, web_server=web_server)
 
     def _choose_worker(self):
         nodes = self.jenkins.get_nodes()

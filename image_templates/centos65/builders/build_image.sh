@@ -7,12 +7,12 @@ if [[ ! -x $PACKER_EXEC ]]; then
 fi
 echo $PACKER_EXEC
 
-ISONAME="CentOS-6.5-x86_64-minimal.iso"
-ISOURL=$ISOS_URL$ISONAME
-OUTDIR=/tmp/centos65-$BUILD_TAG
-IMGNAME=centos65x86_64-$BUILD_TAG.qcow2
+ISOURL=$ISOS_URL
+WEBSERVER=$WEB_SERVER
+OUTDIR=/tmp/centos65_$BUILD_NUMBER
+IMGNAME=centos65x86_64_`date +%Y%m%d`_$BUILD_NUMBER.qcow2
 
-echo "Build: "$BUILD_TAG
+echo "Build: "$BUILD_NUMBER
 echo "GIT_COMMIT: "$GIT_COMMIT
 
 echo "Workspace: "$WORKSPACE
@@ -24,11 +24,9 @@ generate_post_data()
     cat <<EOF
 {
     "image_name":"$IMGNAME",
-    "os_type":"Linux",
-    "os_distro":"centos",
-    "os_ver":"6.5",
-    "from_iso":"$ISOURL",
-    "update_contents":"$GIT_COMMIT"
+    "os_name":"centos65",
+    "update_contents":"$GIT_COMMIT",
+    "get_url": "http://$WEB_SERVER/images/centos65/$IMGNAME"
 }
 EOF
 }
@@ -40,9 +38,9 @@ if [[ -e "$OUTDIR/$IMGNAME" ]]; then
       --data "$(generate_post_data)" \
       http://aibuild-server.com:9753/v1/build
 
+    virt-sysprep $OUTDIR/$IMGNAME
     # Move image to build dir
-    mv $OUTDIR/$IMGNAME /var/www/html/images/build/
-    virt-sysprep -a /var/www/html/images/build/$IMGNAME
+    scp -o StrictHostKeyChecking=no $OUTDIR/$IMGNAME root@$WEBSERVER:/var/www/html/images/centos65
 else
     echo "Image not generated successfully"
     exit 1

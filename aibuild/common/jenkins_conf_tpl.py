@@ -18,6 +18,12 @@ CONF_TEMPLATE = '''<?xml version='1.1' encoding='UTF-8'?>
           <defaultValue>{{ isos_url }}</defaultValue>
           <trim>false</trim>
         </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>WEB_SERVER</name>
+          <description></description>
+          <defaultValue>{{ web_server }}</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
   </properties>
