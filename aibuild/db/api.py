@@ -102,14 +102,15 @@ class API(object):
 
     def create_guestos(self, kwargs):
         guestos_id = str(uuid.uuid4())
-        with sessionmaker(bind=self.engine)() as session:
-            session.add(models.GuestOS(
-                id=guestos_id,
-                name=kwargs.get('name'),
-                base_iso=kwargs.get('base_iso'),
-                type=kwargs.get('type'),
-                distro=kwargs.get('distro'),
-                version=kwargs.get('version')
-            ))
-            session.commit()
+        session = sessionmaker(bind=self.engine)()
+        session.add(models.GuestOS(
+            id=guestos_id,
+            name=kwargs.get('name'),
+            base_iso=kwargs.get('base_iso'),
+            type=kwargs.get('type'),
+            distro=kwargs.get('distro'),
+            version=kwargs.get('version')
+        ))
+        session.commit()
+        session.close()
         return guestos_id

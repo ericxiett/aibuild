@@ -10,9 +10,9 @@ class GuestOS(Base):
 
     id = Column(String(36), primary_key=True, nullable=False)
     name = Column(String(255), nullable=False)
-    type = Column(String(36), nullable=True)
-    distro = Column(String(36), nullable=True)
-    version = Column(String(36), nullable=True)
+    type = Column(String(36), nullable=False)
+    distro = Column(String(36), nullable=False)
+    version = Column(String(36), nullable=False)
     base_iso = Column(String(255), nullable=False)
 
 class ImageBuildLog(Base):
