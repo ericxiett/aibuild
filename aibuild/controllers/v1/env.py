@@ -4,7 +4,7 @@ from aibuild.common.log_utils import LOG
 from aibuild.db import api
 
 
-class OpenStackEnvInfoController(rest.RestController):
+class EnvInfoController(rest.RestController):
 
     def __init__(self):
         super(OpenStackEnvInfoController, self).__init__()

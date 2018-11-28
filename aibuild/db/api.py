@@ -75,7 +75,7 @@ class API(object):
 
         env_uuid = str(uuid.uuid4())
 
-        session.add(models.OpenStackEnvInfo(
+        session.add(models.EnvInfo(
             env_uuid=env_uuid,
             auth_url=env_info.get('auth_url'),
             project_domain_name=env_info.get('project_domain_name'),
@@ -93,9 +93,23 @@ class API(object):
     def get_validated_image_by_uuid(self, image_uuid):
         session = sessionmaker(bind=self.engine)()
         try:
-            image_info = session.query(models.ImageValidateLog).filter_by(
+            image_info = session.query(models.ImageTestLog).filter_by(
                 image_uuid=image_uuid).one()
         except sqlalchemy.orm.exc.NoResultFound as e:
             image_info = None
         session.close()
         return image_info
+
+    def create_guestos(self, kwargs):
+        guestos_id = str(uuid.uuid4())
+        with sessionmaker(bind=self.engine)() as session:
+            session.add(models.GuestOS(
+                id=guestos_id,
+                name=kwargs.get('name'),
+                base_iso=kwargs.get('base_iso'),
+                type=kwargs.get('type'),
+                distro=kwargs.get('distro'),
+                version=kwargs.get('version')
+            ))
+            session.commit()
+        return guestos_id

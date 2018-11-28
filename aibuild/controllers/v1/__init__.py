@@ -1,6 +1,6 @@
 from pecan import rest, expose
 
-from aibuild.controllers.v1 import build, validate, release, env
+from aibuild.controllers.v1 import build, validate, release, env, guestos
 
 
 class Controller(rest.RestController):
@@ -8,7 +8,8 @@ class Controller(rest.RestController):
     build = build.ImageBuildController()
     validate = validate.ImageValidateController()
     release = release.ImageReleaseController()
-    env = env.OpenStackEnvInfoController()
+    env = env.EnvInfoController()
+    guestos = guestos.GuestOSController()
 
     @expose()
     def index(self):

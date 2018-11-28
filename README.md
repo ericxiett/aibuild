@@ -44,11 +44,11 @@ Database: aibuild
 | field | type | Null | Key | Default | Extra |
 |------|------|------|------|------|------|
 |id|varchar(36)|NO|PRI|NULL||
-|name|varchar(255)|YES||NULL||
-|base_iso|varchar(255)|YES||NULL||
-|type|varchar(36)|YES||NULL||
-|distro|varchar(36)|YES||NULL||
-|version|varchar(36)|YES||NULL||
+|name|varchar(255)|NO||NULL||
+|base_iso|varchar(255)|NO||NULL||
+|type|varchar(36)|NO||NULL||
+|distro|varchar(36)|NO||NULL||
+|version|varchar(36)|NO||NULL||
 
 
 * Table: build_log
