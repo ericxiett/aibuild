@@ -66,7 +66,7 @@ class GuestOSCommands(object):
 
     @args('file', help='Xls file that contains info of guestos')
     def register(self, file=None):
-        if not file or os.path.exists(file):
+        if not file or not os.path.exists(file):
             print('Please input valid xls file')
             return
 
