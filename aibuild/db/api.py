@@ -37,7 +37,7 @@ class API(object):
         image_name = build_log.get('image_name')
         session = sessionmaker(bind=self.engine)()
         build_log = session.query(models.ImageBuildLog).filter_by(
-            image_name=image_name).one()
+            image_name=image_name).first()
         log_id = str(uuid.uuid4())
         if not build_log:
             session.add(models.ImageBuildLog(
@@ -92,7 +92,7 @@ class API(object):
         session = sessionmaker(bind=self.engine)()
         try:
             image_info = session.query(models.ImageTestLog).filter_by(
-                image_uuid=image_uuid).one()
+                image_uuid=image_uuid).first()
         except sqlalchemy.orm.exc.NoResultFound as e:
             image_info = None
         session.close()
@@ -103,7 +103,7 @@ class API(object):
         guestos_id = str(uuid.uuid4())
         session = sessionmaker(bind=self.engine)()
         guestos = session.query(models.GuestOS).filter_by(
-                name=name).one()
+                name=name).first()
         if not guestos:
             session.add(models.GuestOS(
                 id=guestos_id,
