@@ -36,8 +36,8 @@ class ImageTestLog(Base):
     __tablename__ = 'test_log'
 
     id = Column(String(36), primary_key=True, nullable=False)
-    build_id = Column(String(36), nullable=False)
-    case_id = Column(String(36), nullable=False)
+    image_name = Column(String(36), nullable=False)
+    case_name = Column(String(255), nullable=False)
     result = Column(String(10), nullable=False)
     test_at = Column(DateTime, default=datetime.datetime.now())
 

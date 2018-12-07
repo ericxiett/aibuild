@@ -108,7 +108,8 @@ os_type: 测试用例适用于linux或windows
 
 ## Install
 
-### gitlab和jenkin均使用容器实现
+### Cicd node
+gitlab和jenkin均使用容器实现
 * Install docker
 ``` bash
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
@@ -158,19 +159,6 @@ gitlab/gitlab-ce
 账户：root/Lc13yfwpW
 
 ### aibuild server
-* 安装qemu，kvm
-``` bash
-$ apt install qemu-kvm git
-```
-
-* Download packer
-``` bash
-$ https://releases.hashicorp.com/packer/1.2.5/packer_1.2.5_linux_amd64.zip
-$ apt install -y unzip
-$ unzip packer_1.2.5_linux_amd64.zip
-$ ls
-packer  packer_1.2.5_linux_amd64.zip
-```
 
 * Setup aibuild
 ``` bash
@@ -210,13 +198,44 @@ $ python dbsync.py create
 $ nohup pecan serve config.py &
 ```
 
-* web server
+### Worker nodes
+
+* 安装qemu，kvm
+``` bash
+$ apt install qemu-kvm git
+```
+
+* Download packer
+``` bash
+$ https://releases.hashicorp.com/packer/1.2.5/packer_1.2.5_linux_amd64.zip
+$ apt install -y unzip
+$ unzip packer_1.2.5_linux_amd64.zip
+$ ls
+packer  packer_1.2.5_linux_amd64.zip
+```
+
+* Create DN for aibuild-server.com
+``` bash
+$ vi /etc/hosts
+x.x.x.x aibuild-server.com
+```
+
+### web server
 使用apache2搭建web服务器，/var/www/html目录空间至少为2TB，建议使用lvm的方式，方便扩容。分为2个目录
-	* build: 构建成功后推送的地方，/var/www/html/images/build
-	* release: 测试通过后推送的地方，/var/www/html/images/release
+按照GuestOS进行子目录的创建，如/var/www/html/centos65等
+worker节点需能无密码ssh访问web server，通过如下配置
+
+``` bash
+# Ops on worker nodes
+$ ssh-keygen -t rsa
+$ ssh-copy-id WEB-SERVER
+```
 
 ## Use
 
+* 
+
+### Manual
 * Create one project of gitlab
 
     http://172.23.61.5:49011/root/ubuntu1604-tpl

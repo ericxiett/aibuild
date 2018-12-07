@@ -88,7 +88,7 @@ class API(object):
 
         return env_uuid
 
-    def get_validated_image_by_uuid(self, image_uuid):
+    def get_test_image_by_uuid(self, image_uuid):
         session = sessionmaker(bind=self.engine)()
         try:
             image_info = session.query(models.ImageTestLog).filter_by(
@@ -116,3 +116,23 @@ class API(object):
             session.commit()
             session.close()
         return guestos_id if not guestos else guestos.id
+
+    def create_test_log(self, kwargs):
+        log_id = str(uuid.uuid4())
+        image_name = kwargs.get('image_name')
+        case_name = kwargs.get('case_name')
+        result = kwargs.get('result')
+        test_at = datetime.datetime.now()
+        session = sessionmaker(bind=self.engine)()
+        if not (image_name or case_name or result):
+            session.add(models.ImageTestLog(
+                id=log_id,
+                image_name=image_name,
+                case_name=case_name,
+                result=result,
+                test_at=test_at
+            ))
+            session.commit()
+            session.close()
+            return log_id
+        return None
