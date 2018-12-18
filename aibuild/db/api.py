@@ -16,7 +16,7 @@ class API(object):
         url = CONF.get('DEFAULT', 'db_connection')
         self.engine = sqlalchemy.create_engine(url)
 
-    def add_build_log(self, build_log):
+    def add_build_log(self, **build_log):
         """
         Add build log to database
         :param kwargs: a dict object
@@ -53,7 +53,7 @@ class API(object):
 
         return log_id if not build_log else build_log.id
 
-    def add_new_env_info(self, env_info):
+    def add_new_env_info(self, **env_info):
         """
         Add env info to database
         :param env_info: a dict object
@@ -98,7 +98,7 @@ class API(object):
         session.close()
         return image_info
 
-    def create_guestos(self, kwargs):
+    def create_guestos(self, **kwargs):
         name = kwargs.get('name')
         guestos_id = str(uuid.uuid4())
         session = sessionmaker(bind=self.engine)()
@@ -117,7 +117,7 @@ class API(object):
             session.close()
         return guestos_id if not guestos else guestos.id
 
-    def create_test_log(self, kwargs):
+    def create_test_log(self, **kwargs):
         log_id = str(uuid.uuid4())
         image_name = kwargs.get('image_name')
         case_name = kwargs.get('case_name')
@@ -136,3 +136,33 @@ class API(object):
             session.close()
             return log_id
         return None
+
+    def get_env_info_by_name(self, name):
+        session = sessionmaker(bind=self.engine)()
+        env_info = session.query(models.EnvInfo).filter_by(
+            name=name).first()
+        session.close()
+        return env_info
+
+    def get_build_log_by_name(self, name):
+        session = sessionmaker(bind=self.engine)()
+        image_info = session.query(models.ImageBuildLog).filter_by(
+            name=name).first()
+        session.close()
+        return image_info
+
+    def create_release_log(self, **body):
+        log_id = str(uuid.uuid4())
+        env_name = body.get('env_name')
+        glance_id = body.get('glance_id')
+        release_at = datetime.datetime.now()
+        session = sessionmaker(bind=self.engine)()
+        session.add(models.ImageTestLog(
+            id=log_id,
+            env_name=env_name,
+            glance_id=glance_id,
+            release_at=release_at
+        ))
+        session.commit()
+        session.close()
+        return log_id

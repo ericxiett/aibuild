@@ -27,3 +27,14 @@ class ImageBuildController(rest.RestController):
         LOG.info('Add build log successfully!')
         kwargs['id'] = image_uuid
         return dict(status=200, **kwargs)
+
+    @expose('json')
+    def get(self, name):
+        LOG.info('Get build log request %s', name)
+
+        try:
+            image_info = self.dbapi.get_build_log_by_name(name)
+        except Exception as e:
+            LOG.error('Get error %s', e.message)
+            return dict(status=500, message=e.message)
+        return dict(status=200, **image_info.__dict__)

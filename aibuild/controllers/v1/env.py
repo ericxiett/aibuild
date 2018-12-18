@@ -33,3 +33,14 @@ class EnvInfoController(rest.RestController):
                 'return_value': '0',
                 'env_uuid': env_uuid
             }
+
+    @expose('json')
+    def get(self, env_name):
+        LOG.info('Get env info request, env name: %s', env_name)
+
+        try:
+            env_info = self.db_api.get_env_info_by_name(env_name)
+        except Exception as e:
+            LOG.error('Get error %s', e.message)
+            return dict(status=500, message=e.message)
+        return dict(status=200, **env_info.__dict__)

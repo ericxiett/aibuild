@@ -45,7 +45,7 @@ class ImageReleaseLog(Base):
     __tablename__ = 'release_log'
 
     id = Column(String(36), primary_key=True, nullable=False)
-    env_id = Column(String(60), nullable=True)
+    env_name = Column(String(255), nullable=True)
     glance_id = Column(String(36), nullable=True)
     release_at = Column(DateTime, default=datetime.datetime.now())
 

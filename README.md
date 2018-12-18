@@ -57,7 +57,7 @@ Database: aibuild
 |------|------|------|------|------|------|
 |id|varchar(36)|NO|PRI|NULL||
 |image_name|varchar(255)|YES||NULL||
-|os_id|varchar(36)|YES||NULL||
+|os_name|varchar(36)|YES||NULL||
 |build_at|datetime|YES||NULL||
 |update_contents|text|YES||NULL||
 |get_url|varchar(255)|YES||NULL||
@@ -77,8 +77,8 @@ os_type: 测试用例适用于linux或windows
 |field|type|Null|Key|Default|Extra|
 |------|------|------|------|------|------|
 |id|varchar(36)|NO|PRI|NULL||
-|build_id|varchar(36)|YES||NULL||
-|case_id|varchar(36)|YES||NULL||
+|image_name|varchar(36)|YES||NULL||
+|case_name|varchar(36)|YES||NULL||
 |result|varchar(10)|YES||NULL||
 |test_at|datetime|YES||NULL||
 
@@ -87,7 +87,7 @@ os_type: 测试用例适用于linux或windows
 |field|type|Null|Key|Default|Extra|
 |------|------|------|------|------|------|
 |id|varchar(36)|NO|PRI|NULL||
-|env_id|varchar(60)|YES||NULL||
+|env_name|varchar(60)|YES||NULL||
 |glance_id|varchar(36)|YES||NULL||
 |release_at|datetime|YES||NULL||
 
@@ -180,7 +180,6 @@ $ mysql -uroot -pLc13yfwpW
 CREATE DATABASE aibuild CHARACTER SET utf8;
 GRANT ALL PRIVILEGES ON aibuild.* TO 'aibuild'@'localhost' \
        IDENTIFIED BY 'Lc13yfwpW';
-CREATE DATABASE aibuild CHARACTER SET utf8;
 GRANT ALL PRIVILEGES ON aibuild.* TO 'aibuild'@'%' \
        IDENTIFIED BY 'Lc13yfwpW';
 $ cd /opt/
@@ -194,7 +193,8 @@ $ vim /etc/aibuild/aibuild.conf
 db_connection = mysql+pymysql://aibuild:Lc13yfwpW@127.0.0.1/aibuild?charset=utf8
 pecan_config_path = /opt/aibuild/config.py
 $ cd aibuild/cmd/
-$ python dbsync.py create
+$ python aibuild_client.py db create
+$ cd /opt/aibuild/
 $ nohup pecan serve config.py &
 ```
 
@@ -256,3 +256,8 @@ $ ssh-copy-id WEB-SERVER
     * gitlab 暴露端口不对
 
 2. 集成mod_wsgi有问题
+
+## ChangeLog
+
+* v0.1 use jenkins free-style job
+* v0.2 use jenkins pipeline

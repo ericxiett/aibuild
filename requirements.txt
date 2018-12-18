@@ -5,3 +5,4 @@ pecan
 requests
 python-gitlab
 python-jenkins
+pymysql
