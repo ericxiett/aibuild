@@ -53,7 +53,7 @@ class API(object):
 
         return log_id if not build_log else build_log.id
 
-    def add_new_env_info(self, **env_info):
+    def add_new_env_info(self, env_info):
         """
         Add env info to database
         :param env_info: a dict object
@@ -98,7 +98,7 @@ class API(object):
         session.close()
         return image_info
 
-    def create_guestos(self, **kwargs):
+    def create_guestos(self, kwargs):
         name = kwargs.get('name')
         guestos_id = str(uuid.uuid4())
         session = sessionmaker(bind=self.engine)()
@@ -117,7 +117,7 @@ class API(object):
             session.close()
         return guestos_id if not guestos else guestos.id
 
-    def create_test_log(self, **kwargs):
+    def create_test_log(self, kwargs):
         log_id = str(uuid.uuid4())
         image_name = kwargs.get('image_name')
         case_name = kwargs.get('case_name')
@@ -151,7 +151,7 @@ class API(object):
         session.close()
         return image_info
 
-    def create_release_log(self, **body):
+    def create_release_log(self, body):
         log_id = str(uuid.uuid4())
         env_name = body.get('env_name')
         glance_id = body.get('glance_id')
