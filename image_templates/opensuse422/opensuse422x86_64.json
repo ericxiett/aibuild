@@ -1,5 +1,5 @@
 {
-  "description":"Ubuntu1404 x86_64 minimal for Packer",
+  "description":"openSUSE 42.2 x86_64 minimal for Packer",
   "min_packer_version":"1.0.0",
   "builders":
   [
@@ -7,9 +7,9 @@
       "type": "qemu",
       "iso_url": "{{ user `isourl` }}",
       "iso_checksum_type": "md5",
-      "iso_checksum": "dd54dc8cfc2a655053d19813c2f9aa9f",
+      "iso_checksum": "470bf7670ec6c39882fcbf85cdba0d1d",
       "output_directory": "{{ user `outdir` }}",
-      "shutdown_command": "sudo poweroff",
+      "shutdown_command": "echo '/sbin/halt -h -p' > shutdown.sh; echo 'packer'|sudo -S bash 'shutdown.sh'",
       "disk_size": 40960,
       "format": "qcow2",
       "headless": false,
@@ -30,24 +30,16 @@
       ],
       "boot_wait": "5s",
       "boot_command": [
-        "<enter><wait>",
-        "<f6><esc>",
-        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
-        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
-        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
-        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
-        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
-        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
-        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
-        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
-        "<bs><bs><bs>",
-        "/install/vmlinuz ",
-        "initrd=/install/initrd.gz ",
+        "<esc><enter><wait>",
+        "linux ",
+        "biosdevname=0 ",
         "net.ifnames=0 ",
-        "auto-install/enable=true ",
-        "debconf/priority=critical ",
-        "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg ",
-        "<enter>"
+        "netdevice=eth0 ",
+        "netsetup=dhcp ",
+        "lang=en_US ",
+        "textmode=1 ",
+        "autoyast=http://{{ .HTTPIP }}:{{ .HTTPPort }}/autoinst.xml<wait> ",
+        "<enter><wait>"
       ]
     }
   ],
@@ -62,4 +54,3 @@
     }
   ]
 }
-

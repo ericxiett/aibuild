@@ -36,10 +36,10 @@ class API(object):
 
         image_name = build_log.get('image_name')
         session = sessionmaker(bind=self.engine)()
-        build_log = session.query(models.ImageBuildLog).filter_by(
+        exist_log = session.query(models.ImageBuildLog).filter_by(
             image_name=image_name).first()
         log_id = str(uuid.uuid4())
-        if not build_log:
+        if not exist_log:
             session.add(models.ImageBuildLog(
                 id=log_id,
                 image_name=image_name,
@@ -51,7 +51,7 @@ class API(object):
             session.commit()
             session.close()
 
-        return log_id if not build_log else build_log.id
+        return log_id if not exist_log else exist_log.id
 
     def add_new_env_info(self, env_info):
         """
