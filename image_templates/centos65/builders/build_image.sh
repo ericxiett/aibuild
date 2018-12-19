@@ -38,7 +38,7 @@ if [[ -e "$OUTDIR/$IMGNAME" ]]; then
       --data "$(generate_post_data)" \
       http://aibuild-server.com:9753/v1/build
 
-    virt-sysprep $OUTDIR/$IMGNAME
+    virt-sysprep -a $OUTDIR/$IMGNAME
     # Move image to build dir
     scp -o StrictHostKeyChecking=no $OUTDIR/$IMGNAME root@$WEBSERVER:/var/www/html/images/centos65
 else
