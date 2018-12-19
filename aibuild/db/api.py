@@ -74,7 +74,7 @@ class API(object):
         env_uuid = str(uuid.uuid4())
 
         session.add(models.EnvInfo(
-            env_uuid=env_uuid,
+            id=env_uuid,
             auth_url=env_info.get('auth_url'),
             project_domain_name=env_info.get('project_domain_name'),
             user_domain_name=env_info.get('user_domain_name'),
