@@ -16,7 +16,7 @@ class API(object):
         url = CONF.get('DEFAULT', 'db_connection')
         self.engine = sqlalchemy.create_engine(url)
 
-    def add_build_log(self, **build_log):
+    def add_build_log(self, build_log):
         """
         Add build log to database
         :param kwargs: a dict object
