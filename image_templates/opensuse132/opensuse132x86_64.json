@@ -1,0 +1,56 @@
+{
+  "description":"openSUSE 13.2 x86_64 minimal for Packer",
+  "min_packer_version":"1.0.0",
+  "builders":
+  [
+    {
+      "type": "qemu",
+      "iso_url": "{{ user `isourl` }}",
+      "iso_checksum_type": "md5",
+      "iso_checksum": "350b8cb014a4e342cc9a7cc9df891b99",
+      "output_directory": "{{ user `outdir` }}",
+      "shutdown_command": "echo '/sbin/halt -h -p' > shutdown.sh; echo 'packer'|sudo -S bash 'shutdown.sh'",
+      "disk_size": 40960,
+      "format": "qcow2",
+      "headless": false,
+      "accelerator": "kvm",
+      "http_directory": "httpdir",
+      "ssh_port": 22,
+      "ssh_username": "root",
+      "ssh_password": "Lc13yfwpW",
+      "ssh_wait_timeout": "20m",
+      "vm_name": "{{ user `vmname` }}",
+      "net_device": "virtio-net",
+      "disk_interface": "virtio",
+      "vnc_bind_address": "0.0.0.0",
+      "qemuargs": [
+        ["-m", "2048"],
+        ["-smp", "2"],
+        ["-display", "vnc=:5"]
+      ],
+      "boot_wait": "5s",
+      "boot_command": [
+        "<esc><enter><wait>",
+        "linux ",
+        "biosdevname=0 ",
+        "net.ifnames=0 ",
+        "netdevice=eth0 ",
+        "netsetup=dhcp ",
+        "lang=en_US ",
+        "textmode=1 ",
+        "autoyast=http://{{ .HTTPIP }}:{{ .HTTPPort }}/autoinst.xml<wait> ",
+        "<enter><wait>"
+      ]
+    }
+  ],
+  "provisioners": [
+    {
+      "scripts": [
+        "scripts/sshd.sh",
+        "scripts/cloudinit.sh",
+        "scripts/qga.sh"
+      ],
+      "type": "shell"
+    }
+  ]
+}
