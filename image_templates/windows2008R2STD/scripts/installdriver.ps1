@@ -19,10 +19,6 @@ Import-Certificate -file "a:\redhat.cer" -CertStoreLocation Cert:\LocalMachine\T
 $url = "http://10.2.32.9/soft/cloud_init/2018/windows/2k8R2/Balloon.zip"
 (new-object System.Net.WebClient).DownloadFile($url, "C:\Windows\Temp\Balloon.zip")
 
-UnzipFile "C:\Windows\Temp\Balloon.zip" "C:\Windows\Temp\"
-PnPutil.exe -i -a "C:\Windows\Temp\balloon.inf"
-
-
 # 下载串口驱动
 $url = "http://10.2.32.9/soft/cloud_init/2018/windows/2k8R2/vioserial.zip"
 (new-object System.Net.WebClient).DownloadFile($url, "C:\Windows\Temp\vioserial.zip")
@@ -35,6 +31,9 @@ UnzipFile "C:\Windows\Temp\dlls.zip" "C:\Windows\Temp\"
 Move-Item -Path "C:\Windows\Temp\dlls\*" -Destination "C:\Windows\System32\"
 
 # 安装驱动
+UnzipFile "C:\Windows\Temp\Balloon.zip" "C:\Windows\Temp\"
+PnPutil.exe -i -a "C:\Windows\Temp\Balloon\2k8R2\amd64\balloon.inf"
+
 UnzipFile "C:\Windows\Temp\vioserial.zip" "C:\Windows\Temp\"
 PnPutil.exe -i -a "C:\Windows\Temp\vioserial\2k8R2\amd64\vioser.inf"
 
