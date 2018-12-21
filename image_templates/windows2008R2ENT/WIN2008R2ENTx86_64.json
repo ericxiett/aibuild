@@ -1,5 +1,5 @@
 {
-  "description":"Windows 2012R2 DataCenter for Packer",
+  "description":"Windows 2008R2 Enterprise for Packer",
   "min_packer_version":"1.0.0",
   "builders":
   [
@@ -7,7 +7,7 @@
       "vm_name": "{{ user `vmname` }}",
       "type": "qemu",
       "iso_url": "{{ user `isourl` }}",
-      "iso_checksum": "4c7f7418b892d8aad7833763620a1ca5",
+      "iso_checksum": "a8ff15758e3e60a9d58de60d0daa7ea4",
       "iso_checksum_type": "md5",
       "output_directory": "{{ user `outdir` }}",
       "shutdown_command": "a:\\sysprep.bat",
@@ -28,7 +28,7 @@
       "winrm_timeout": "1h",
       "vnc_bind_address": "0.0.0.0",
       "disk_interface": "virtio",
-      "floppy_files": "drivers/viostor/2k12R2/amd64/*,drivers/NetKVM/2k12R2/amd64/*,scripts/*"
+      "floppy_files": "drivers/viostor/2k8R2/amd64/*,drivers/NetKVM/2k8R2/amd64/*,scripts/*"
     }
   ]
 }

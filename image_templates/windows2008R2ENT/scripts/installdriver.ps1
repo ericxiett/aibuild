@@ -14,7 +14,7 @@ function UnzipFile([string]$souceFile, [string]$targetFolder)
 # 针对windows 2008 Disable Network Level Authentication 否则会提示安全漏洞
 (Get-WmiObject -class Win32_TSGeneralSetting -Namespace root\cimv2\terminalservices -Filter "TerminalName='RDP-tcp'").SetUserAuthenticationRequired(0)
 
-# 导入证书, Import-Certificate在2008R2上没有此命令，使用
+
 certutil.exe -addstore -f "TrustedPublisher" "a:\redhat.cer"
 $url = "http://10.2.32.9/soft/cloud_init/2018/windows/2k8R2/Balloon.zip"
 (new-object System.Net.WebClient).DownloadFile($url, "C:\Windows\Temp\Balloon.zip")
