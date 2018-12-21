@@ -7,10 +7,11 @@ if [[ ! -x $PACKER_EXEC ]]; then
 fi
 echo $PACKER_EXEC
 
-ISONAME="SW_DVD9_Windows_Svr_Std_and_DataCtr_2012_R2_64Bit_ChnSimp_-4_MLF_X19-82889.ISO"
-ISOURL=$ISOS_URL$ISONAME
-OUTDIR=/tmp/WIN2012R2DC-$BUILD_TAG
-IMGNAME=WIN2012R2DCx86_64-$BUILD_TAG.qcow2
+OSNAME="WIN2012R2DC"
+ISOURL=$ISOS_URL
+WEBSERVER=$WEB_SERVER
+OUTDIR=/tmp/$OSNAME"_"$BUILD_NUMBER
+IMGNAME=$OSNAME"x86_64_"`date +%Y%m%d`"_"$BUILD_NUMBER.qcow2
 
 echo "Build: "$BUILD_TAG
 echo "GIT_COMMIT: "$GIT_COMMIT
@@ -24,11 +25,9 @@ generate_post_data()
     cat <<EOF
 {
     "image_name":"$IMGNAME",
-    "os_type":"Windows",
-    "os_distro":"Windows",
-    "os_ver":"2012 R2 DC",
-    "from_iso":"$ISOURL",
-    "update_contents":"$GIT_COMMIT"
+    "os_name":"$OSNAME",
+    "update_contents":"$GIT_COMMIT",
+    "get_url": "http://$WEB_SERVER/images/$OSNAME/$IMGNAME"
 }
 EOF
 }
@@ -41,7 +40,9 @@ if [[ -e "$OUTDIR/$IMGNAME" ]]; then
       http://aibuild-server.com:9753/v1/build
 
     # Move image to build dir
-    mv $OUTDIR/$IMGNAME /var/www/html/images/build/
+    WEBPATH="/var/www/html/images/$OSNAME"
+    mkdir -p $WEBPATH
+    mv $OUTDIR/$IMGNAME $WEBPATH
 else
     echo "Image not generated successfully"
     exit 1
