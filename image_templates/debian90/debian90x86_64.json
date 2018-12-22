@@ -1,0 +1,68 @@
+{
+  "description":"Debian 9.0 x86_64 minimal for Packer",
+  "min_packer_version":"1.0.0",
+  "variables": {
+    "user": "root",
+    "password": "Lc13yfwpW",
+    "domain": "unassigned-domain",
+    "hostname": "unassigned-hostname"
+  },
+  "builders":
+  [
+    {
+      "vm_name": "{{ user `vmname` }}",
+      "type": "qemu",
+      "iso_url": "{{ user `isourl` }}",
+      "iso_checksum": "83253a530270e46a5d6e66daf3431c33",
+      "iso_checksum_type": "md5",
+      "output_directory": "{{ user `outdir` }}",
+      "shutdown_command": "shutdown -h now",
+      "disk_size": 40960,
+      "format": "qcow2",
+      "qemuargs": [
+        ["-m", "2048"],
+        ["-smp", "2"]
+      ],
+      "headless": true,
+      "accelerator": "kvm",
+      "http_directory": "httpdir",
+      "ssh_username": "{{user `user`}}",
+      "ssh_password": "{{user `password`}}",
+      "ssh_port": 22,
+      "ssh_wait_timeout": "20m",
+      "vnc_bind_address": "0.0.0.0",
+      "net_device": "virtio-net",
+      "disk_interface": "virtio",
+      "disk_compression": true,
+      "boot_wait": "30s",
+      "boot_command": [
+        "<esc><wait><wait>",
+        "install <wait>",
+        "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg <wait>",
+        "debian-installer=en_US <wait>",
+        "auto <wait>",
+        "locale=en_US <wait>",
+        "keymap=us <wait>",
+        "netcfg/get_hostname={{ user `hostname` }} <wait>",
+        "netcfg/get_domain={{ user `domain`}} <wait>",
+        "fb=false <wait>",
+        "debconf/frontend=noninteractive <wait>",
+        "passwd/user-fullname={{user `user`}} ",
+        "passwd/user-password={{user `password`}} ",
+        "passwd/user-password-again={{user `password`}} ",
+        "passwd/username={{user `user`}} ",
+        "<enter><wait>"
+      ]
+    }
+  ],
+  "provisioners": [
+    {
+      "scripts": [
+        "scripts/sshd.sh",
+        "scripts/cloudinit.sh",
+        "scripts/qga.sh"
+      ],
+      "type": "shell"
+    }
+  ]
+}
