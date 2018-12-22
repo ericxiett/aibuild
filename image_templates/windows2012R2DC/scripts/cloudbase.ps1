@@ -1,6 +1,6 @@
 $Host.UI.RawUI.WindowTitle = "Downloading Cloudbase-Init..."
 
-$url = "http://172.23.11.11/soft/cloud_init/2018/CloudbaseInitSetup_Stable_x64.msi"
+$url = "http://10.2.32.9/soft/cloud_init/2018/CloudbaseInitSetup_Stable_x64.msi"
 (new-object System.Net.WebClient).DownloadFile($url, "C:\Windows\Temp\cloudbase-init.msi")
 
 $Host.UI.RawUI.WindowTitle = "Installing Cloudbase-Init..."
@@ -22,4 +22,9 @@ $Host.UI.RawUI.WindowTitle = "Running Cloudbase-Init SetSetupComplete..."
 
 $Host.UI.RawUI.WindowTitle = "Running Sysprep..."
 $unattendedXmlPath = "${env:ProgramFiles}\Cloudbase Solutions\Cloudbase-Init\conf\Unattend.xml"
-& "${env:SystemRoot}\System32\Sysprep\Sysprep.exe" `/generalize `/oobe `/shutdown `/unattend:"$unattendedXmlPath"
+# & "${env:SystemRoot}\System32\Sysprep\Sysprep.exe" `/generalize `/oobe `/shutdown `/unattend:"$unattendedXmlPath"
+
+net user "Administrator" /active:yes
+netsh advfirewall set allprofile state off
+Set-Service -Name cloudbase-init -StartupType auto
+shutdown /s /t 600
