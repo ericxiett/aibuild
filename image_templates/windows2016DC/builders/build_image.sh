@@ -41,7 +41,7 @@ if [[ -e "$OUTDIR/$IMGNAME" ]]; then
     # Move image to build dir
     WEBPATH="/var/www/html/images/$OSNAME"
     mkdir -p $WEBPATH
-    mv $OUTDIR/$IMGNAME $WEBPATHWEBPATH="/var/www/html/images/$OSNAME"
+    mv $OUTDIR/$IMGNAME $WEBPATH
 else
     echo "Image not generated successfully"
     exit 1
