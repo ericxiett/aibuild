@@ -8,7 +8,7 @@
       "type": "qemu",
       "iso_url": "{{ user `isourl` }}",
       "iso_checksum": "762eb3dfc22f85faf659001ebf270b4f",
-      "iso_checksum_type": "md5sum",
+      "iso_checksum_type": "md5",
       "output_directory": "{{ user `outdir` }}",
       "shutdown_command": "shutdown -h now",
       "disk_size": 40960,
