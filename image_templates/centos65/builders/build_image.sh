@@ -7,10 +7,11 @@ if [[ ! -x $PACKER_EXEC ]]; then
 fi
 echo $PACKER_EXEC
 
+OSNAME="centos65"
 ISOURL=$ISOS_URL
 WEBSERVER=$WEB_SERVER
-OUTDIR=/tmp/centos65_$BUILD_NUMBER
-IMGNAME=centos65x86_64_`date +%Y%m%d`_$BUILD_NUMBER.qcow2
+OUTDIR=/tmp/$OSNAME"_"$BUILD_NUMBER
+IMGNAME=$OSNAME"x86_64_"`date +%Y%m%d`"_"$BUILD_NUMBER.qcow2
 
 echo "Build: "$BUILD_NUMBER
 echo "GIT_COMMIT: "$GIT_COMMIT
@@ -24,9 +25,9 @@ generate_post_data()
     cat <<EOF
 {
     "image_name":"$IMGNAME",
-    "os_name":"centos65",
+    "os_name":"$OSNAME",
     "update_contents":"$GIT_COMMIT",
-    "get_url": "http://$WEB_SERVER/images/centos65/$IMGNAME"
+    "get_url": "http://$WEB_SERVER/images/$OSNAME/$IMGNAME"
 }
 EOF
 }
@@ -40,7 +41,9 @@ if [[ -e "$OUTDIR/$IMGNAME" ]]; then
 
     virt-sysprep -a $OUTDIR/$IMGNAME
     # Move image to build dir
-    scp -o StrictHostKeyChecking=no $OUTDIR/$IMGNAME root@$WEBSERVER:/var/www/html/images/centos65
+    WEBPATH="/var/www/html/images/$OSNAME"
+    mkdir -p $WEBPATH
+    mv $OUTDIR/$IMGNAME $WEBPATH
 else
     echo "Image not generated successfully"
     exit 1
