@@ -40,7 +40,6 @@ if [[ -e "$OUTDIR/$IMGNAME" ]]; then
       http://aibuild-server.com:9753/v1/build
 
     # Move image to build dir
-    #mv $OUTDIR/$IMGNAME /var/www/html/images/build/
     virt-sysprep -a  $OUTDIR/$IMGNAME
     WEBPATH="/var/www/html/images/$OSNAME"
     mkdir -p $WEBPATH

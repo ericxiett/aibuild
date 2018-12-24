@@ -37,7 +37,8 @@
   "provisioners": [
     {
       "scripts": [
-        "scripts/cloudinit.sh"
+        "scripts/cloudinit.sh",
+        "scripts/qga.sh"
       ],
       "type": "shell"
     }
