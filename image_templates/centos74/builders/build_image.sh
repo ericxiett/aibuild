@@ -7,12 +7,13 @@ if [[ ! -x $PACKER_EXEC ]]; then
 fi
 echo $PACKER_EXEC
 
-ISONAME="CentOS-7-x86_64-Minimal-1708.iso"
-ISOURL=$ISOS_URL$ISONAME
-OUTDIR=/tmp/centos74-$BUILD_TAG
-IMGNAME=centos74x86_64-$BUILD_TAG.qcow2
+OSNAME="centos74"
+ISOURL=$ISOS_URL
+WEBSERVER=$WEB_SERVER
+OUTDIR=/tmp/$OSNAME"_"$BUILD_NUMBER
+IMGNAME=$OSNAME"x86_64_"`date +%Y%m%d`"_"$BUILD_NUMBER.qcow2
 
-echo "Build: "$BUILD_TAG
+echo "Build: "$BUILD_NUMBER
 echo "GIT_COMMIT: "$GIT_COMMIT
 
 echo "Workspace: "$WORKSPACE
@@ -24,11 +25,9 @@ generate_post_data()
     cat <<EOF
 {
     "image_name":"$IMGNAME",
-    "os_type":"Linux",
-    "os_distro":"centos",
-    "os_ver":"7.4",
-    "from_iso":"$ISOURL",
-    "update_contents":"$GIT_COMMIT"
+    "os_name":"$OSNAME",
+    "update_contents":"$GIT_COMMIT",
+    "get_url": "http://$WEB_SERVER/images/$OSNAME/$IMGNAME"
 }
 EOF
 }
@@ -40,9 +39,11 @@ if [[ -e "$OUTDIR/$IMGNAME" ]]; then
       --data "$(generate_post_data)" \
       http://aibuild-server.com:9753/v1/build
 
+    virt-sysprep -a  $OUTDIR/$IMGNAME
     # Move image to build dir
-    mv $OUTDIR/$IMGNAME /var/www/html/images/build/
-    virt-sysprep -a /var/www/html/images/build/$IMGNAME
+    WEBPATH="/var/www/html/images/$OSNAME"
+    mkdir -p $WEBPATH
+    mv $OUTDIR/$IMGNAME $WEBPATH
 else
     echo "Image not generated successfully"
     exit 1
