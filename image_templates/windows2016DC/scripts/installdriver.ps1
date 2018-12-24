@@ -39,9 +39,6 @@ UnzipFile "C:\Windows\Temp\vioserial.zip" "C:\Windows\Temp\"
 PnPutil.exe -i -a "C:\Windows\Temp\vioserial\2k16\amd64\vioser.inf"
 
 # 安装Qga
-$url = "http://10.2.32.9/repo/qga/windows/qemu-ga-x64.msi"
+$url = "http://10.2.32.9/soft/qga/windows/qemu-ga-x64.msi"
 (new-object System.Net.WebClient).DownloadFile($url, "C:\Windows\Temp\qemu-ga-x64.msi")
 Start-Process C:\Windows\Temp\qemu-ga-x64.msi /qn -Wait
-
-$url = "http://10.2.32.9/repo/qga/windows/qemu-ga.exe"
-(new-object System.Net.WebClient).DownloadFile($url, "${env:ProgramFiles}\qemu-ga\qemu-ga.exe")

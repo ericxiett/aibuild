@@ -27,4 +27,4 @@ $unattendedXmlPath = "${env:ProgramFiles}\Cloudbase Solutions\Cloudbase-Init\con
 net user "Administrator" /active:yes
 netsh advfirewall set allprofile state off
 Set-Service -Name cloudbase-init -StartupType auto
-shutdown /s /t 600
+shutdown /s /t 60

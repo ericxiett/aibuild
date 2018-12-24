@@ -32,4 +32,4 @@ $Host.UI.RawUI.WindowTitle = "Running Cloudbase-Init SetSetupComplete..."
 net user "Administrator" /active:yes
 netsh advfirewall set allprofile state off
 Set-Service -Name cloudbase-init -StartupType automatic
-shutdown /s /t 600
+shutdown /s /t 60
