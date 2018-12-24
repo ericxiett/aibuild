@@ -1,5 +1,5 @@
 {
-  "description":"CentOS6.8 x86_64 minimal for Packer",
+  "description":"CentOS 6.8 x86_64 minimal for Packer",
   "min_packer_version":"1.0.0",
   "builders":
   [
