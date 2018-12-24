@@ -1,5 +1,5 @@
 {
-  "description":"CentOS7.5 x86_64 minimal for Packer",
+  "description":"CentOS 7.5 x86_64 minimal for Packer",
   "min_packer_version":"1.0.0",
   "builders":
   [
@@ -38,7 +38,8 @@
     {
       "scripts": [
         "scripts/sshd.sh",
-        "scripts/cloudinit.sh"
+        "scripts/cloudinit.sh",
+        "scripts/qga.sh"
       ],
       "type": "shell"
     }
