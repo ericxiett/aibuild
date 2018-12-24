@@ -36,30 +36,24 @@ cloud_init_modules:
  - users-groups
 cloud_config_modules:
  - emit_upstart
- - snap
- - snap_config  # DEPRECATED- Drop in version 18.2
  - ssh-import-id
  - locale
  - set-passwords
  - grub-dpkg
  - apt-pipelining
  - apt-configure
- - ubuntu-advantage
  - ntp
  - timezone
  - disable-ec2-metadata
  - runcmd
  - byobu
 cloud_final_modules:
- - snappy  # DEPRECATED- Drop in version 18.2
  - package-update-upgrade-install
  - fan
- - landscape
- - lxd
  - puppet
  - chef
- - mcollective
  - salt-minion
+ - mcollective
  - rightscale_userdata
  - scripts-vendor
  - scripts-per-once
@@ -70,4 +64,37 @@ cloud_final_modules:
  - keys-to-console
  - phone-home
  - final-message
+ - power-state-change
+ system_info:
+   # This will affect which distro class gets used
+   distro: debian
+   # Default user name + that default users groups (if added/used)
+   default_user:
+     name: debian
+     lock_passwd: True
+     gecos: Debian
+     groups: [adm, audio, cdrom, dialout, dip, floppy, netdev, plugdev, sudo, video]
+     sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+     shell: /bin/bash
+   # Other config here will be given to the distro class and/or path classes
+   paths:
+      cloud_dir: /var/lib/cloud/
+      templates_dir: /etc/cloud/templates/
+      upstart_dir: /etc/init/
+system_info:
+   # This will affect which distro class gets used
+   distro: debian
+   # Default user name + that default users groups (if added/used)
+   default_user:
+     name: debian
+     lock_passwd: True
+     gecos: Debian
+     groups: [adm, audio, cdrom, dialout, dip, floppy, netdev, plugdev, sudo, video]
+     sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+     shell: /bin/bash
+   # Other config here will be given to the distro class and/or path classes
+   paths:
+      cloud_dir: /var/lib/cloud/
+      templates_dir: /etc/cloud/templates/
+      upstart_dir: /etc/init/
 EOF
