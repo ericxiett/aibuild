@@ -36,4 +36,5 @@ Set-Service -Name QEMU-GA -StartupType automatic
 Set-Service -Name "QEMU Guest Agent VSS Provider" -StartupType automatic
 Start-Service -Name QEMU-GA
 Start-Service -Name "QEMU Guest Agent VSS Provider"
+echo "net start qemu-ga" >> C:\Windows\Setup\Scripts\SetupComplete.cmd
 shutdown /s /t 60
