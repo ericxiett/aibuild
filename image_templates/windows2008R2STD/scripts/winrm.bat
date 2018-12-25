@@ -1,31 +1,20 @@
-::  Current WinRM settings
-::  winrm get winrm/config
-::  Configure WinRM
-::  Supress network location Prompt
-::  New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Network\NewNetworkWindowOff" -Force
+:: Current WinRM settings
+:: winrm get winrm/config
 
-:: Set network to private
-::$ifaceinfo = Get-NetConnectionProfile
-::Set-NetConnectionProfile -InterfaceIndex $ifaceinfo.InterfaceIndex -NetworkCategory Private 
+:: Configure WinRM
 :: start "" /WAIT cmd.exe /c net stop winrm
+cmd.exe /c winrm quickconfig -q
+cmd.exe /c winrm quickconfig -transport:http
+cmd.exe /c winrm set winrm/config @{MaxTimeoutms="1800000"}
+cmd.exe /c winrm set winrm/config/winrs @{MaxMemoryPerShellMB="2048"}
+cmd.exe /c winrm set winrm/config/service @{AllowUnencrypted="true"}
+cmd.exe /c winrm set winrm/config/service/auth @{Basic="true"}
+cmd.exe /c winrm set winrm/config/client/auth @{Basic="true"}
+cmd.exe /c winrm set winrm/config/listener?Address=*+Transport=HTTP @{Port="5985"}
 
-:: https://github.com/masterzen/winrm/issues/75
-winrm quickconfig -q
-#winrm quickconfig -transport:http
-winrm set "winrm/config" '@{MaxTimeoutms="1800000"}'
-winrm set "winrm/config/winrs" '@{MaxMemoryPerShellMB="2048"}'
-winrm set "winrm/config/service" '@{AllowUnencrypted="true"}'
-winrm set "winrm/config/service/auth" @{Basic="true"}
-winrm set "winrm/config/client/auth" @{Basic="true"}
-:: winrm set "winrm/config/client" '@{TrustedHosts="*"}'
-:: cmd.exe /c winrm set winrm/config/client/auth @{Basic="true"}
-:: cmd.exe /c winrm set winrm/config/listener?Address=*+Transport=HTTP @{Port="5985"}
+:: Fire up WinRM!
+:: cmd.exe /c sc config winrm start= auto
+cmd.exe /c net start winrm
+cmd.exe /c sc config winrm start= disabled
 
-:: # Fire up WinRM!
-:: # cmd.exe /c sc config winrm start= auto
-:: #cmd.exe /c net start winrm
-sc config winrm start= auto
-
-:: enable admin user
-net user "Administrator" /active:yes
-:: netsh advfirewall set allprofiles state off
+netsh advfirewall set allprofiles state off

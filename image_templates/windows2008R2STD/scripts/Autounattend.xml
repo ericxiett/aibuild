@@ -28,7 +28,7 @@
 	      <Active>true</Active>
 	      <Extend>true</Extend>
 	      <Format>NTFS</Format>
-	      <Label>C</Label>
+	      <Label>C drive</Label>
 	      <Letter>C</Letter>
 	      <Order>1</Order>
 	      <PartitionID>1</PartitionID>
@@ -40,9 +40,9 @@
 	<OSImage>
 	  <InstallFrom>
 	    <MetaData wcm:action="add">
-	      <Key>/IMAGE/NAME</Key>
-        <!-- 2: 简体中文标准版，4，数据中心办 -->
-	      <Value>Windows Server 2008 R2 SERVERSTANDARD</Value>
+	      <Key>/IMAGE/INDEX</Key>
+        <!-- 1：标准版完全安装，3，企业版完全安装，5，数据中心版完全安装，7 Web Server完全安装 -->
+	      <Value>1</Value>
 	    </MetaData>
 	  </InstallFrom>
 	  <InstallTo>
@@ -53,18 +53,13 @@
 	</OSImage>
       </ImageInstall>
       <UserData>
-          <ProductKey>
-            <Key>YC6KT-GKW9T-YTKYR-T4X34-R7VHC</Key>
-            <WillShowUI>OnError</WillShowUI>
-        </ProductKey>
-	        <AcceptEula>true</AcceptEula>
+	<AcceptEula>true</AcceptEula>
       </UserData>
     </component>
     <component name="Microsoft-Windows-International-Core-WinPE" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
       <SetupUILanguage>
 	<UILanguage>zh-CN</UILanguage>
       </SetupUILanguage>
-      <InputLocale>zh-CN</InputLocale>
       <SystemLocale>zh-CN</SystemLocale>
       <UILanguage>zh-CN</UILanguage>
       <UserLocale>zh-CN</UserLocale>
@@ -91,7 +86,6 @@
       <OOBE>
         <HideEULAPage>true</HideEULAPage>
         <ProtectYourPC>3</ProtectYourPC>
-        <SkipMachineOOBE>true</SkipMachineOOBE>
       </OOBE>
       <FirstLogonCommands>
                 <SynchronousCommand wcm:action="add">
@@ -101,7 +95,7 @@
                     <RequiresUserInput>true</RequiresUserInput>
                 </SynchronousCommand>
                <SynchronousCommand wcm:action="add">
-                    <CommandLine>cmd.exe /c C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -File a:\winrm.ps1</CommandLine>
+                    <CommandLine>cmd.exe /c a:\winrm.bat</CommandLine>
                     <Description>Fire-up winrm!</Description>
                     <Order>2</Order>
                     <RequiresUserInput>true</RequiresUserInput>
@@ -119,17 +113,17 @@
                     <RequiresUserInput>true</RequiresUserInput>
                 </SynchronousCommand>
                <SynchronousCommand wcm:action="add">
-                    <CommandLine>cmd.exe /c a:\disable-auto-logon.bat</CommandLine>
-                    <Description> disable-auto-logon!</Description>
-                    <Order>5</Order>
-                    <RequiresUserInput>true</RequiresUserInput>
-                </SynchronousCommand>
-              <SynchronousCommand wcm:action="add">
                     <CommandLine>cmd.exe /c C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -File a:\installdriver.ps1</CommandLine>
                     <Description> Install Balloon driver!</Description>
                     <Order>6</Order>
                     <RequiresUserInput>true</RequiresUserInput>
                 </SynchronousCommand>
+               <SynchronousCommand wcm:action="add">
+                    <CommandLine>cmd.exe /c C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -File a:\Disable-IEESC.ps1</CommandLine>
+                    <Description> disable IE ESC!</Description>
+                    <Order>7</Order>
+                    <RequiresUserInput>true</RequiresUserInput>
+                </SynchronousCommand>                
                <SynchronousCommand wcm:action="add">
                     <CommandLine>cmd.exe /c C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -File a:\cloudbase.ps1</CommandLine>
                     <Description> Install cloudbase!</Description>
@@ -139,4 +133,9 @@
       </FirstLogonCommands>
     </component>
   </settings>
+  <!-- <settings pass="specialize">
+    <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <ProductKey></ProductKey>
+    </component>
+  </settings> -->
 </unattend>
