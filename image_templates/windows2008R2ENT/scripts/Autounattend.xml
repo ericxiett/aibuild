@@ -40,9 +40,9 @@
 	<OSImage>
 	  <InstallFrom>
 	    <MetaData wcm:action="add">
-	      <Key>/IMAGE/NAME</Key>
-        <!-- 2: 简体中文标准版，4，数据中心办 -->
-	      <Value>Windows Server 2008 R2 SERVERSTANDARD</Value>
+	      <Key>/IMAGE/INDEX</Key>
+       <!-- 1：标准版完全安装，3，企业版完全安装，5，数据中心版完全安装，7 Web Server完全安装 -->
+	      <Value>3</Value>
 	    </MetaData>
 	  </InstallFrom>
 	  <InstallTo>

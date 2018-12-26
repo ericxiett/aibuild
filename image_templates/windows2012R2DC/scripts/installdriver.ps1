@@ -15,7 +15,7 @@ function UnzipFile([string]$souceFile, [string]$targetFolder)
 (Get-WmiObject -class Win32_TSGeneralSetting -Namespace root\cimv2\terminalservices -Filter "TerminalName='RDP-tcp'").SetUserAuthenticationRequired(0)
 
 Import-Certificate -file "a:\redhat.cer" -CertStoreLocation Cert:\LocalMachine\TrustedPublisher
-$url = "http://10.2.32.9/soft/cloud_init/2018/windows/2k12R2/Balloon.zip"
+$url = "http://10.2.32.9/soft/win-virtio/from_fedora/0.1.141/2k12R2/Balloon.zip"
 (new-object System.Net.WebClient).DownloadFile($url, "C:\Windows\Temp\Balloon.zip")
 
 UnzipFile "C:\Windows\Temp\Balloon.zip" "C:\Windows\Temp\"
@@ -23,11 +23,11 @@ PnPutil.exe -i -a "C:\Windows\Temp\Balloon\2k12R2\amd64\balloon.inf"
 
 
 # 下载串口驱动
-$url = "http://10.2.32.9/soft/cloud_init/2018/windows/2k12R2/vioserial.zip"
+$url = "http://10.2.32.9/soft/win-virtio/from_fedora/0.1.141/2k12R2/vioserial.zip"
 (new-object System.Net.WebClient).DownloadFile($url, "C:\Windows\Temp\vioserial.zip")
 
 ## 下载串口ddl
-$url = "http://10.2.32.9/soft/cloud_init/2018/windows/dlls.zip"
+$url = "http://10.2.32.9/soft/win-virtio/from_fedora/dlls.zip"
 (new-object System.Net.WebClient).DownloadFile($url, "C:\Windows\Temp\dlls.zip")
 UnzipFile "C:\Windows\Temp\dlls.zip" "C:\Windows\Temp\"
 

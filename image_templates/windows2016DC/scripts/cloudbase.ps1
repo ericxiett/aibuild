@@ -22,7 +22,7 @@ $Host.UI.RawUI.WindowTitle = "Running Cloudbase-Init SetSetupComplete..."
 
 # cloudbase-init will setup setcomplete iteself
 #New-Item -Path "${env:WINDIR}\Setup\Scripts" -type Directory -Force
-#Copy-Item "A:\SetupComplete.cmd" -Destination "${env:WINDIR}\Setup\Scripts\SetupComplete.cmd"
+Copy-Item "A:\SetupComplete.cmd" -Destination "${env:WINDIR}\Setup\Scripts\SetupComplete.cmd"
 
 # run sysprep will disable administrator account
 #$Host.UI.RawUI.WindowTitle = "Running Sysprep..."
@@ -32,4 +32,8 @@ $Host.UI.RawUI.WindowTitle = "Running Cloudbase-Init SetSetupComplete..."
 net user "Administrator" /active:yes
 netsh advfirewall set allprofile state off
 Set-Service -Name cloudbase-init -StartupType automatic
+Set-Service -Name QEMU-GA -StartupType automatic
+Set-Service -Name "QEMU Guest Agent VSS Provider" -StartupType automatic
+Start-Service -Name QEMU-GA
+Start-Service -Name "QEMU Guest Agent VSS Provider"
 shutdown /s /t 60

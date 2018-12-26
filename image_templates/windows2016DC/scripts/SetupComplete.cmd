@@ -1,5 +1,2 @@
-net user "Administrator" /active:yes
-netsh advfirewall set domainprofile state off
-netsh advfirewall set privateprofile state off
-netsh advfirewall set publicprofile state off
-
+sc config cloudbase-init start= auto && net start cloudbase-init
+net start qemu-ga
