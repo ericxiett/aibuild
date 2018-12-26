@@ -1,68 +1,77 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 set -e
 set -x
+mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo_backup
+cat > /etc/yum.repos.d/base.repo <<EOF
+[base]
+name=CentOS-$releasever - Base
+baseurl=https://mirrors.tuna.tsinghua.edu.cn/centos-vault/7.1.1503/os/x86_64/
+gpgcheck=0
 
-# Install
-yum clean all && yum makecache
-yum --nogpgcheck install epel-release -y
-yum install -y cloud-init cloud-utils-growpart
+#released updates
+[updates]
+name=CentOS-$releasever - Updates
+baseurl=https://mirrors.tuna.tsinghua.edu.cn/centos-vault/7.1.1503/updates/x86_64/
+gpgcheck=0
 
-# Config
-cd /etc/cloud
-CLOUDCFG=cloud.cfg
-mv $CLOUDCFG ${CLOUDCFG}_bak
-tee -a $CLOUDCFG << EOF
+#additional packages that may be useful
+[extras]
+name=CentOS-$releasever - Extras
+baseurl=https://mirrors.tuna.tsinghua.edu.cn/centos-vault/7.1.1503/extras/x86_64/
+gpgcheck=0
+
+EOF
+# yum cache
+yum --nogpgcheck install cloud-init cloud-utils-growpart -y
+mv /etc/yum.repos.d/CentOS-Base.repo_backup /etc/yum.repos.d/CentOS-Base.repo
+rm -f /etc/yum.repos.d/base.repo
+
+# configure cloud.cfg
+cat > /etc/cloud/cloud.cfg <<EOF
 users:
-   - name: root
-     lock_passwd: False
-disable_root: false
-network:
-  config: disabled
+ - default
+
+user:
+    name: root
+    lock_passwd: False
+
+disable_root: False
+
+preserve_hostname: False
+
+syslog_fix_perms: root:root
+
 cloud_init_modules:
- - ssh
  - migrator
  - seed_random
  - bootcmd
  - write-files
  - growpart
  - resizefs
- - disk_setup
- - mounts
  - set_hostname
  - update_hostname
  - update_etc_hosts
- - ca-certs
  - rsyslog
  - users-groups
+ - ssh
+
 cloud_config_modules:
- - emit_upstart
- - snap
- - snap_config  # DEPRECATED- Drop in version 18.2
- - ssh-import-id
+ - disk_setup
+ - mounts
  - locale
  - set-passwords
- - grub-dpkg
- - apt-pipelining
- - apt-configure
- - ubuntu-advantage
- - ntp
- - timezone
- - disable-ec2-metadata
- - runcmd
- - byobu
-cloud_final_modules:
- - snappy  # DEPRECATED- Drop in version 18.2
  - package-update-upgrade-install
- - fan
- - landscape
- - lxd
+ - timezone
  - puppet
  - chef
- - mcollective
  - salt-minion
+ - mcollective
+ - disable-ec2-metadata
+ - runcmd
+
+cloud_final_modules:
  - rightscale_userdata
- - scripts-vendor
  - scripts-per-once
  - scripts-per-boot
  - scripts-per-instance
@@ -71,5 +80,14 @@ cloud_final_modules:
  - keys-to-console
  - phone-home
  - final-message
+ - power-state-change
+
+system_info:
+  distro: rhel
+  paths:
+    cloud_dir: /var/lib/cloud
+    templates_dir: /etc/cloud/templates
+  ssh_svcname: sshd
+
+# vim:syntax=yaml
 EOF
-yum remove epel-release -y
