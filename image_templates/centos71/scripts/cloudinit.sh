@@ -4,7 +4,8 @@ set -e
 set -x
 
 # Install
-yum install -y epel-release
+yum clean all && yum makecache
+yum --nogpgcheck install epel-release -y
 yum install -y cloud-init cloud-utils-growpart
 
 # Config
@@ -71,3 +72,4 @@ cloud_final_modules:
  - phone-home
  - final-message
 EOF
+yum remove epel-release -y
