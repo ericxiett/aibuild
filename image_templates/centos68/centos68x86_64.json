@@ -38,7 +38,8 @@
     {
       "scripts": [
         "scripts/cloudinit.sh",
-        "scripts/qga.sh"
+        "scripts/qga.sh",
+        "scripts/disable_persistent_net.sh"
       ],
       "type": "shell"
     }
