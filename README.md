@@ -186,6 +186,8 @@ $ cd /opt/
 $ git clone https://github.com/ericxiett/aibuild.git
 $ cd aibuild/
 $ python setup.py develop
+$ apt install python-pip
+$ pip install -r requirements.txt
 $ mkdir -p /var/log/aibuild
 $ mkdir -p /etc/aibuild
 $ vim /etc/aibuild/aibuild.conf
